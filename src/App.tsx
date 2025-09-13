@@ -18,6 +18,7 @@ import AddReport from "./pages/AddReport";
 import { BugsList } from "./pages/BugsList";
 import AddBug from "./pages/AddBug";
 import EditBug from "./pages/EditBug";
+import ViewBug from "./pages/ViewBug";
 import { GenerateReport } from "./pages/GenerateReport";
 import { PlaceholderPage } from "./pages/PlaceholderPage";
 import MyTeam from "./pages/MyTeam";
@@ -135,6 +136,14 @@ const App = () => (
             <ProtectedRoute>
               <DashboardLayout>
                 <EditBug />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/reports/:id/bugs/:bugId/view" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <ViewBug />
               </DashboardLayout>
             </ProtectedRoute>
           } />
