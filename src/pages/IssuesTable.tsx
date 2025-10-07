@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Plus, Search, Bug, Edit, Settings, Eye } from 'lucide-react';
+import { ArrowLeft, Plus, Search, Bug, Edit, Settings, Eye, FileText, BarChart3, MessageSquare, Paperclip, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,11 +9,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useBugs, useDeleteBug } from '@/hooks/useBugs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { useBugs, useDeleteBug, useBug, useBugComments, useBugTimeline, useCreateComment } from '@/hooks/useBugs';
 import { StatusChangeModal } from '@/components/StatusChangeModal';
 import { IssueDetails } from '@/components/issues/IssueDetails';
 import { TimelineCard } from '@/components/issues/TimelineCard';
 import { CommentsCard } from '@/components/issues/CommentsCard';
+import MDEditor from '@uiw/react-md-editor';
 
 
 export const IssuesTable: React.FC = () => {
@@ -31,6 +34,7 @@ export const IssuesTable: React.FC = () => {
   const [statusModal, setStatusModal] = useState<{ bugId: number; status: number; severity: number } | null>(null);
   const [selectedBugId, setSelectedBugId] = useState<number | null>(null);
   const [issueDetailsHeight, setIssueDetailsHeight] = useState<number>(0);
+  const [newComment, setNewComment] = useState('');
 
   // Validate reportId
   if (!reportId || isNaN(parseInt(reportId))) {
@@ -81,13 +85,13 @@ export const IssuesTable: React.FC = () => {
   const isIndeterminate = selectedBugs.length > 0 && selectedBugs.length < bugs.length;
 
   // Helper functions
-  const getSeverityColor = (severity: string) => {
+  const getSeverityVariant = (severity: string) => {
     switch (severity.toLowerCase()) {
-      case 'critical': return 'bg-red-100 text-red-800 border-red-200';
-      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'critical': return 'critical';
+      case 'high': return 'destructive';
+      case 'medium': return 'warning';
+      case 'low': return 'success';
+      default: return 'info';
     }
   };
 
@@ -364,11 +368,12 @@ export const IssuesTable: React.FC = () => {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge className={`text-xs ${getSeverityColor(bug.severity?.label || 'Medium')}`}>
+                          <Badge variant={getSeverityVariant(bug.severity?.label || 'Medium')} className="text-xs">
                             <div className="flex items-center gap-1">
                               <div className={`w-2 h-2 rounded-full ${
-                                bug.severity?.label?.toLowerCase() === 'high' ? 'bg-red-500' :
-                                bug.severity?.label?.toLowerCase() === 'medium' ? 'bg-orange-500' :
+                                bug.severity?.label?.toLowerCase() === 'critical' ? 'bg-red-500' :
+                                bug.severity?.label?.toLowerCase() === 'high' ? 'bg-orange-500' :
+                                bug.severity?.label?.toLowerCase() === 'medium' ? 'bg-yellow-500' :
                                 bug.severity?.label?.toLowerCase() === 'low' ? 'bg-green-500' : 'bg-blue-500'
                               }`} />
                               {bug.severity?.label || 'Medium'}
@@ -451,7 +456,7 @@ export const IssuesTable: React.FC = () => {
                           <h3 className="font-semibold text-gray-900 mb-2 text-xl">{selectedBug.title}</h3>
                           <div className="flex flex-wrap gap-2">
                             <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">{selectedBug.status?.label || 'Open'}</Badge>
-                            <Badge className={`px-2 ${getSeverityColor(selectedBug.severity?.label || 'Medium')}`}>{selectedBug.severity?.label || 'Medium'}</Badge>
+                            <Badge variant={getSeverityVariant(selectedBug.severity?.label || 'Medium')} className="px-2">{selectedBug.severity?.label || 'Medium'}</Badge>
                           </div>
                         </div>
                         <div className="flex items-center gap-3 p-3 rounded-lg border bg-white">
@@ -513,7 +518,27 @@ export const IssuesTable: React.FC = () => {
                         <TabsContent value="description" className="mt-4">
                           <div className="text-sm text-gray-700 max-w-none bg-white p-3 rounded border min-h-[100px]">
                             {selectedBug.description ? (
-                              <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: selectedBug.description }} />
+                              <>
+                                {/* Debug test */}
+                                <div className="issue-content mb-4 p-2 bg-yellow-100 border">
+                                  <strong>Debug Test:</strong>
+                                  <div className="wmde-markdown">
+                                    <ol>
+                                      <li>Test item 1</li>
+                                      <li>Test item 2</li>
+                                      <li>Test item 3</li>
+                                    </ol>
+                                  </div>
+                                </div>
+                                <div 
+                                  className="issue-content" 
+                                  style={{
+                                    listStyleType: 'decimal',
+                                    listStylePosition: 'inside'
+                                  }}
+                                  dangerouslySetInnerHTML={{ __html: selectedBug.description }} 
+                                />
+                              </>
                             ) : (
                               <p className="text-gray-500 italic">No description provided</p>
                             )}
@@ -523,7 +548,14 @@ export const IssuesTable: React.FC = () => {
                         <TabsContent value="poc" className="mt-4">
                           <div className="text-sm text-gray-700 max-w-none bg-white p-3 rounded border min-h-[100px]">
                             {selectedBug.poc ? (
-                              <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: selectedBug.poc }} />
+                              <div 
+                                className="issue-content" 
+                                style={{
+                                  listStyleType: 'decimal',
+                                  listStylePosition: 'inside'
+                                }}
+                                dangerouslySetInnerHTML={{ __html: selectedBug.poc }} 
+                              />
                             ) : (
                               <p className="text-gray-500 italic">No proof of concept provided</p>
                             )}
@@ -533,7 +565,14 @@ export const IssuesTable: React.FC = () => {
                         <TabsContent value="fix" className="mt-4">
                           <div className="text-sm text-gray-700 max-w-none bg-white p-3 rounded border min-h-[100px]">
                             {selectedBug.fix ? (
-                              <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: selectedBug.fix }} />
+                              <div 
+                                className="issue-content" 
+                                style={{
+                                  listStyleType: 'decimal',
+                                  listStylePosition: 'inside'
+                                }}
+                                dangerouslySetInnerHTML={{ __html: selectedBug.fix }} 
+                              />
                             ) : (
                               <p className="text-gray-500 italic">No fix provided</p>
                             )}

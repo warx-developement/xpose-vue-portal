@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useReport, useUpdateReport, useDeleteReport, useAddUserAccess, useRemoveUserAccess } from '@/hooks/useReports';
 import { useCompanyUsers } from '@/hooks/useUsers';
+import { useAssets, useReportAsset, useAssignAssetToReport, useRemoveAssetFromReport } from '@/hooks/useAssets';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 
 export const EditReport: React.FC = () => {
@@ -24,11 +26,19 @@ export const EditReport: React.FC = () => {
   const deleteReportMutation = useDeleteReport();
   const addUserAccessMutation = useAddUserAccess();
   const removeUserAccessMutation = useRemoveUserAccess();
+  
+  // Asset-related hooks
+  const { data: assetsData, isLoading: isLoadingAssets } = useAssets({ page: 1, limit: 100 });
+  const assets = assetsData?.data || [];
+  const { data: currentAsset } = useReportAsset(reportId);
+  const assignAssetMutation = useAssignAssetToReport();
+  const removeAssetMutation = useRemoveAssetFromReport();
 
   const [formData, setFormData] = useState({
     name: '',
     scope: '',
   });
+  const [selectedAsset, setSelectedAsset] = useState<string>('');
   const [showAddUser, setShowAddUser] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
@@ -41,6 +51,15 @@ export const EditReport: React.FC = () => {
       });
     }
   }, [report]);
+
+  // Update selected asset when current asset loads
+  useEffect(() => {
+    if (currentAsset?.data) {
+      setSelectedAsset(currentAsset.data.id.toString());
+    } else {
+      setSelectedAsset('none');
+    }
+  }, [currentAsset]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,6 +112,51 @@ export const EditReport: React.FC = () => {
         reportId,
         userId,
       });
+    }
+  };
+
+  const handleAssetChange = (assetId: string) => {
+    setSelectedAsset(assetId);
+    
+    if (assetId === 'none') {
+      // Remove current asset
+      if (currentAsset?.data) {
+        removeAssetMutation.mutate(reportId, {
+          onSuccess: () => {
+            toast({
+              title: 'Success',
+              description: 'Asset removed from report successfully',
+            });
+          },
+          onError: () => {
+            toast({
+              title: 'Error',
+              description: 'Failed to remove asset from report',
+              variant: 'destructive',
+            });
+          },
+        });
+      }
+    } else {
+      // Assign new asset
+      assignAssetMutation.mutate(
+        { reportId, assetId: parseInt(assetId) },
+        {
+          onSuccess: () => {
+            toast({
+              title: 'Success',
+              description: 'Asset assigned to report successfully',
+            });
+          },
+          onError: () => {
+            toast({
+              title: 'Error',
+              description: 'Failed to assign asset to report',
+              variant: 'destructive',
+            });
+          },
+        }
+      );
     }
   };
 
@@ -239,6 +303,45 @@ export const EditReport: React.FC = () => {
                     className="min-h-[100px]"
                     required
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="asset">Asset (Optional)</Label>
+                  <Select value={selectedAsset} onValueChange={handleAssetChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an asset to associate with this report" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {isLoadingAssets ? (
+                        <SelectItem value="" disabled>
+                          Loading assets...
+                        </SelectItem>
+                      ) : assets.length === 0 ? (
+                        <SelectItem value="" disabled>
+                          No assets available
+                        </SelectItem>
+                      ) : (
+                        <>
+                          <SelectItem value="none">No asset selected</SelectItem>
+                          {assets.map((asset) => (
+                            <SelectItem key={asset.id} value={asset.id.toString()}>
+                              {asset.name} ({asset.domains.join(', ')})
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-sm text-gray-500">
+                    Associate this report with an asset to enable subdomain analysis and reporting.
+                  </p>
+                  {currentAsset?.data && (
+                    <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                      <p className="text-sm text-blue-800">
+                        <strong>Current Asset:</strong> {currentAsset.data.name} ({currentAsset.data.domains.join(', ')})
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-3 pt-4">

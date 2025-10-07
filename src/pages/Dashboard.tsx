@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDashboard } from '@/hooks/useDashboard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from '@/components/ui/chart';
 import { Area, AreaChart, Bar, BarChart, XAxis, YAxis, CartesianGrid } from 'recharts';
@@ -116,18 +117,20 @@ const VulnerabilitySkeleton = () => (
 );
 
 const SeverityBadge = ({ severity }: { severity: string }) => {
-  const colors = {
-    Critical: 'bg-red-100 text-red-800 border-red-200',
-    High: 'bg-orange-100 text-orange-800 border-orange-200',
-    Medium: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    Low: 'bg-blue-100 text-blue-800 border-blue-200',
-    Info: 'bg-gray-100 text-gray-800 border-gray-200'
+  const getVariant = (severity: string) => {
+    switch (severity.toLowerCase()) {
+      case 'critical': return 'critical';
+      case 'high': return 'destructive';
+      case 'medium': return 'warning';
+      case 'low': return 'success';
+      default: return 'info';
+    }
   };
   
   return (
-    <span className={`px-2 py-1 text-xs font-medium rounded-full border ${colors[severity as keyof typeof colors] || colors.Info}`}>
+    <Badge variant={getVariant(severity)} className="px-2 py-1 text-xs font-medium">
       {severity}
-    </span>
+    </Badge>
   );
 };
 

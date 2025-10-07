@@ -129,4 +129,228 @@ body {
   .bg-gradient-card {
     background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card) / 0.95) 100%);
   }
+
+  /* Global markdown editor overrides */
+  .wmde-markdown {
+    background-color: white !important;
+    color: black !important;
+  }
+  
+  .wmde-markdown p {
+    color: black !important;
+  }
+  
+  .wmde-markdown h1,
+  .wmde-markdown h2,
+  .wmde-markdown h3,
+  .wmde-markdown h4,
+  .wmde-markdown h5,
+  .wmde-markdown h6 {
+    color: black !important;
+  }
+  
+  .wmde-markdown pre {
+    background-color: #f3f4f6 !important;
+    color: #1f2937 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 4px !important;
+    padding: 8px !important;
+  }
+  
+  .wmde-markdown code {
+    background-color: #f3f4f6 !important;
+    color: #1f2937 !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+  }
+  
+  .wmde-markdown blockquote {
+    background-color: #f9fafb !important;
+    border-left: 4px solid #d1d5db !important;
+    color: black !important;
+    padding: 8px 16px !important;
+    margin: 8px 0 !important;
+  }
+  
+  .wmde-markdown a {
+    color: #2563eb !important;
+    text-decoration: underline !important;
+  }
+  
+  .wmde-markdown a:hover {
+    color: #1d4ed8 !important;
+  }
+}
+
+/* Custom styles for HTML content in issue details */
+.issue-content ol {
+  list-style-type: decimal !important;
+  list-style-position: inside !important;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  counter-reset: list-counter !important;
+}
+
+.issue-content ol li {
+  margin: 0.25rem 0 !important;
+  padding-left: 0.5rem !important;
+  display: list-item !important;
+  list-style-type: decimal !important;
+  list-style-position: inside !important;
+}
+
+/* Force list styling with more specific selectors */
+.issue-content ol,
+.issue-content ol li {
+  list-style: decimal !important;
+  list-style-position: inside !important;
+}
+
+/* Debug and force list styling */
+.issue-content * {
+  box-sizing: border-box !important;
+}
+
+.issue-content ol {
+  display: block !important;
+  list-style-type: decimal !important;
+  list-style-position: inside !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  counter-reset: item !important;
+}
+
+.issue-content ol li {
+  display: list-item !important;
+  list-style-type: decimal !important;
+  list-style-position: inside !important;
+  margin: 0.25rem 0 !important;
+  padding-left: 0.5rem !important;
+  counter-increment: item !important;
+}
+
+/* Force list numbers with CSS counters as backup */
+.issue-content ol {
+  counter-reset: step-counter !important;
+}
+
+.issue-content ol li {
+  counter-increment: step-counter !important;
+}
+
+.issue-content ol li::before {
+  content: counter(step-counter) ". " !important;
+  font-weight: bold !important;
+  margin-right: 0.5rem !important;
+  display: inline !important;
+}
+
+.issue-content ul {
+  list-style-type: disc !important;
+  list-style-position: inside !important;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.issue-content ul li {
+  margin: 0.25rem 0 !important;
+  padding-left: 0.5rem !important;
+}
+
+.issue-content code {
+  background-color: #f3f4f6 !important;
+  color: #374151 !important;
+  padding: 0.125rem 0.25rem !important;
+  border-radius: 0.25rem !important;
+  font-family: monospace !important;
+}
+
+.issue-content a {
+  color: #2563eb !important;
+  text-decoration: underline !important;
+}
+
+.issue-content a:hover {
+  color: #1d4ed8 !important;
+}
+
+/* Target the actual wmde-markdown elements */
+.issue-content .wmde-markdown ol,
+.issue-content .wmde-markdown ol li,
+.wmde-markdown ol,
+.wmde-markdown ol li {
+  list-style: decimal !important;
+  list-style-type: decimal !important;
+  list-style-position: inside !important;
+  display: list-item !important;
+}
+
+/* Force numbers with CSS counters for wmde-markdown */
+.issue-content .wmde-markdown ol {
+  counter-reset: list-number !important;
+  list-style: none !important;
+}
+
+.issue-content .wmde-markdown ol li {
+  counter-increment: list-number !important;
+  list-style: none !important;
+  position: relative !important;
+  padding-left: 1.5rem !important;
+}
+
+.issue-content .wmde-markdown ol li::before {
+  content: counter(list-number) ". " !important;
+  position: absolute !important;
+  left: 0 !important;
+  font-weight: bold !important;
+  color: #374151 !important;
+  width: 1.5rem !important;
+}
+
+/* Also target direct children */
+.issue-content ol,
+.issue-content ol li {
+  list-style: decimal !important;
+  list-style-type: decimal !important;
+  list-style-position: inside !important;
+  display: list-item !important;
+}
+
+/* Override wmde-markdown styles specifically */
+.wmde-markdown ol {
+  list-style: decimal !important;
+  list-style-type: decimal !important;
+  list-style-position: inside !important;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.wmde-markdown ol li {
+  list-style: decimal !important;
+  list-style-type: decimal !important;
+  list-style-position: inside !important;
+  display: list-item !important;
+  margin: 0.25rem 0 !important;
+}
+
+/* Force with CSS counters as final fallback */
+.wmde-markdown ol {
+  counter-reset: wmde-counter !important;
+  list-style: none !important;
+}
+
+.wmde-markdown ol li {
+  counter-increment: wmde-counter !important;
+  list-style: none !important;
+  position: relative !important;
+  padding-left: 2rem !important;
+}
+
+.wmde-markdown ol li::before {
+  content: counter(wmde-counter) ". " !important;
+  position: absolute !important;
+  left: 0 !important;
+  font-weight: bold !important;
+  color: #374151 !important;
+  width: 1.5rem !important;
 }

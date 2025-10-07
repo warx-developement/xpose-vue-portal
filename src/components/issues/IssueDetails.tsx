@@ -167,13 +167,13 @@ export const IssueDetails = ({ bugId, onHeightChange }: { bugId: number | null; 
     );
   }
 
-  const getSeverityColor = (severity: string) => {
+  const getSeverityVariant = (severity: string) => {
     switch (severity.toLowerCase()) {
-      case 'critical': return 'bg-red-500 text-white';
-      case 'high': return 'bg-orange-500 text-white';
-      case 'medium': return 'bg-yellow-500 text-white';
-      case 'low': return 'bg-green-500 text-white';
-      default: return 'bg-blue-500 text-white';
+      case 'critical': return 'critical';
+      case 'high': return 'destructive';
+      case 'medium': return 'warning';
+      case 'low': return 'success';
+      default: return 'info';
     }
   };
 
@@ -197,7 +197,7 @@ export const IssueDetails = ({ bugId, onHeightChange }: { bugId: number | null; 
             <h3 className="font-semibold text-gray-900 mb-2">{bug.title}</h3>
             <div className="flex flex-wrap gap-2">
               <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">{bug.status.label}</Badge>
-              <Badge className={`px-2 ${getSeverityColor(bug.severity.label)}`}>{bug.severity.label}</Badge>
+              <Badge variant={getSeverityVariant(bug.severity.label)} className="px-2">{bug.severity.label}</Badge>
             </div>
           </div>
           {(true) && (
@@ -257,24 +257,24 @@ export const IssueDetails = ({ bugId, onHeightChange }: { bugId: number | null; 
           
           <TabsContent value="description" className="mt-4">
             <div className="text-sm text-gray-700 max-w-none bg-white p-3 rounded border">
-              <div className="[&_.w-md-editor]:bg-white [&_.w-md-editor-text]:bg-white [&_.w-md-editor-text]:text-gray-700 [&_.w-md-editor-text]:border-gray-200 [&_.w-md-editor-text]:rounded [&_.w-md-editor-text]:p-2 [&_.w-md-editor-text]:shadow-none [&_pre]:bg-gray-100 [&_pre]:text-gray-800 [&_pre]:border [&_pre]:border-gray-200 [&_pre]:rounded [&_pre]:p-2 [&_code]:bg-gray-100 [&_code]:text-gray-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_blockquote]:bg-gray-50 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:text-gray-700">
-                <MDEditor.Markdown source={bug.description} />
+              <div className="[&_.w-md-editor]:bg-white [&_.w-md-editor-text]:bg-white [&_.w-md-editor-text]:text-black [&_.w-md-editor-text]:border-gray-200 [&_.w-md-editor-text]:rounded [&_.w-md-editor-text]:p-2 [&_.w-md-editor-text]:shadow-none [&_pre]:bg-gray-100 [&_pre]:text-gray-800 [&_pre]:border [&_pre]:border-gray-200 [&_pre]:rounded [&_pre]:p-2 [&_code]:bg-gray-100 [&_code]:text-gray-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_blockquote]:bg-gray-50 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:text-gray-700">
+                <MDEditor.Markdown source={bug.description} data-color-mode="light" />
               </div>
             </div>
           </TabsContent>
           
           <TabsContent value="poc" className="mt-4">
             <div className="text-sm text-gray-700 max-w-none bg-white p-3 rounded border">
-              <div className="[&_.w-md-editor]:bg-white [&_.w-md-editor-text]:bg-white [&_.w-md-editor-text]:text-gray-700 [&_.w-md-editor-text]:border-gray-200 [&_.w-md-editor-text]:rounded [&_.w-md-editor-text]:p-2 [&_.w-md-editor-text]:shadow-none [&_pre]:bg-gray-100 [&_pre]:text-gray-800 [&_pre]:border [&_pre]:border-gray-200 [&_pre]:rounded [&_pre]:p-2 [&_code]:bg-gray-100 [&_code]:text-gray-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_blockquote]:bg-gray-50 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:text-gray-700">
-                <MDEditor.Markdown source={bug.poc} />
+              <div className="[&_.w-md-editor]:bg-white [&_.w-md-editor-text]:bg-white [&_.w-md-editor-text]:text-black [&_.w-md-editor-text]:border-gray-200 [&_.w-md-editor-text]:rounded [&_.w-md-editor-text]:p-2 [&_.w-md-editor-text]:shadow-none [&_pre]:bg-gray-100 [&_pre]:text-gray-800 [&_pre]:border [&_pre]:border-gray-200 [&_pre]:rounded [&_pre]:p-2 [&_code]:bg-gray-100 [&_code]:text-gray-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_blockquote]:bg-gray-50 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:text-gray-700">
+                <MDEditor.Markdown source={bug.poc} data-color-mode="light" />
               </div>
             </div>
           </TabsContent>
           
           <TabsContent value="fix" className="mt-4">
             <div className="text-sm text-gray-700 max-w-none bg-white p-3 rounded border">
-              <div className="[&_.w-md-editor]:bg-white [&_.w-md-editor-text]:bg-white [&_.w-md-editor-text]:text-gray-700 [&_.w-md-editor-text]:border-gray-200 [&_.w-md-editor-text]:rounded [&_.w-md-editor-text]:p-2 [&_.w-md-editor-text]:shadow-none [&_pre]:bg-gray-100 [&_pre]:text-gray-800 [&_pre]:border [&_pre]:border-gray-200 [&_pre]:rounded [&_pre]:p-2 [&_code]:bg-gray-100 [&_code]:text-gray-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_blockquote]:bg-gray-50 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:text-gray-700">
-                <MDEditor.Markdown source={bug.fix} />
+              <div className="[&_.w-md-editor]:bg-white [&_.w-md-editor-text]:bg-white [&_.w-md-editor-text]:text-black [&_.w-md-editor-text]:border-gray-200 [&_.w-md-editor-text]:rounded [&_.w-md-editor-text]:p-2 [&_.w-md-editor-text]:shadow-none [&_pre]:bg-gray-100 [&_pre]:text-gray-800 [&_pre]:border [&_pre]:border-gray-200 [&_pre]:rounded [&_pre]:p-2 [&_code]:bg-gray-100 [&_code]:text-gray-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_blockquote]:bg-gray-50 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:text-gray-700">
+                <MDEditor.Markdown source={bug.fix} data-color-mode="light" />
               </div>
             </div>
           </TabsContent>

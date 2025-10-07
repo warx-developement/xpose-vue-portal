@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import MDEditor from '@uiw/react-md-editor';
 import { useBugComments, useCreateComment, useUpdateComment, useDeleteComment, useAddCommentAttachment, useDeleteCommentAttachment, useUploadCommentDraftAttachment } from '@/hooks/useBugs';
+import { useClipboardImage } from '@/hooks/useClipboardImage';
 import { DraftAttachment } from '@/lib/api';
 import { AttachmentUpload } from '@/components/ui/attachment-upload';
 import { AttachmentDisplay, AttachmentGrid } from '@/components/ui/attachment-display';
@@ -20,6 +21,24 @@ export const CommentsCard = ({ selectedBugId, reportId }: { selectedBugId: numbe
   const deleteCommentAttachmentMutation = useDeleteCommentAttachment();
   const uploadCommentDraftAttachmentMutation = useUploadCommentDraftAttachment();
   const { toast } = useToast();
+
+  // Enable clipboard image paste functionality for comments
+  useClipboardImage({
+    reportId: reportId,
+    enabled: true,
+    onImageUploaded: (imageUrl, attachmentId) => {
+      // Add the uploaded attachment to the draft attachments for comments
+      setDraftAttachments(prev => [...prev, {
+        id: attachmentId,
+        image_url: imageUrl,
+        filename: `clipboard-image-${Date.now()}.png`,
+        size: 0,
+        type: 'image',
+        created_at: new Date().toISOString(),
+        is_draft: true
+      }]);
+    }
+  });
   
   const [newComment, setNewComment] = useState('');
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
@@ -380,8 +399,8 @@ export const CommentsCard = ({ selectedBugId, reportId }: { selectedBugId: numbe
                       ) : (
                         <div className="space-y-3">
                           <div className="text-sm text-gray-700 max-w-none bg-white p-2 rounded border">
-                            <div className="[&_.w-md-editor]:bg-white [&_.w-md-editor-text]:bg-white [&_.w-md-editor-text]:text-gray-700 [&_.w-md-editor-text]:border-gray-200 [&_.w-md-editor-text]:rounded [&_.w-md-editor-text]:p-2 [&_.w-md-editor-text]:shadow-none [&_pre]:bg-gray-100 [&_pre]:text-gray-800 [&_pre]:border [&_pre]:border-gray-200 [&_pre]:rounded [&_pre]:p-2 [&_code]:bg-gray-100 [&_code]:text-gray-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_blockquote]:bg-gray-50 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:text-gray-700">
-                              <MDEditor.Markdown source={comment.comment} />
+                            <div className="[&_.w-md-editor]:bg-white [&_.w-md-editor-text]:bg-white [&_.w-md-editor-text]:text-black [&_.w-md-editor-text]:border-gray-200 [&_.w-md-editor-text]:rounded [&_.w-md-editor-text]:p-2 [&_.w-md-editor-text]:shadow-none [&_pre]:bg-gray-100 [&_pre]:text-gray-800 [&_pre]:border [&_pre]:border-gray-200 [&_pre]:rounded [&_pre]:p-2 [&_code]:bg-gray-100 [&_code]:text-gray-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_blockquote]:bg-gray-50 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:text-gray-700">
+                              <MDEditor.Markdown source={comment.comment} data-color-mode="light" />
                             </div>
                           </div>
                           

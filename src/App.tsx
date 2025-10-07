@@ -24,6 +24,10 @@ import { PlaceholderPage } from "./pages/PlaceholderPage";
 import MyTeam from "./pages/MyTeam";
 import { RoleManagement } from "./pages/RoleManagement";
 import Profile from "./pages/Profile";
+import AssetsList from "./pages/AssetsList";
+import AddAsset from "./pages/AddAsset";
+import EditAsset from "./pages/EditAsset";
+import ViewAsset from "./pages/ViewAsset";
 
 // Layout Components
 import { DashboardLayout } from "./components/layout/DashboardLayout";
@@ -233,6 +237,39 @@ const App = () => (
             <ProtectedRoute>
               <DashboardLayout>
                 <Profile />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
+          
+          {/* Assets Management Routes */}
+          <Route path="/assets" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <AssetsList />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/assets/add" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <AddAsset />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/assets/:id" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <ViewAsset />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/assets/:id/edit" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <EditAsset />
               </DashboardLayout>
             </ProtectedRoute>
           } />

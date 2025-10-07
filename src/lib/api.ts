@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { useAuthStore } from '@/stores/authStore';
 
 // API Configuration
-const API_BASE_URL = 'https://demoapi.whyxpose.com/api/v2';
+const API_BASE_URL = 'http://demoapi.whyxpose.com/api/v2';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -823,4 +823,176 @@ export const profileApi = {
   // Disable 2FA
   disable2FA: (data: TwoFactorVerifyRequest): Promise<AxiosResponse<ApiResponse>> =>
     api.post('/user/disable-2fa', data),
+};
+
+// Assets API
+export interface AssetData {
+  id: number;
+  name: string;
+  created_by_name: string;
+  created_at: string;
+  domains: string[];
+}
+
+export interface AssetsResponse {
+  success: boolean;
+  data: AssetData[];
+  pagination: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+export interface CreateAssetRequest {
+  name: string;
+  domains: string[];
+}
+
+export interface UpdateAssetRequest {
+  name?: string;
+  domains?: string[];
+}
+
+export interface SubdomainData {
+  id: number;
+  domain: string;
+  url: string;
+  input: string;
+  title: string;
+  cdn_name: string | null;
+  cdn_type: string | null;
+  webserver: string | null;
+  content_type: string;
+  host: string;
+  favicon: string;
+  favicon_url: string;
+  time: string;
+  a_records: string[] | null;
+  aaaa_records: string[] | null;
+  tech: string[];
+  status_code: number;
+  content_length: number;
+  screenshot: string | null;
+  first_seen: string;
+  last_seen: string;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface SubdomainsResponse {
+  success: boolean;
+  data: SubdomainData[];
+  pagination: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+export interface ProcessSubdomainRequest {
+  domain: string;
+  data: any | any[];
+}
+
+export interface ProcessSubdomainResponse {
+  success: boolean;
+  message: string;
+  stats: {
+    processed: number;
+    skipped: number;
+    errors: number;
+  };
+}
+
+export interface ReportAssetResponse {
+  success: boolean;
+  data: AssetData | null;
+  message?: string;
+}
+
+export interface AssignAssetRequest {
+  asset_id: number;
+}
+
+export const assetsApi = {
+  // Asset Management
+  getAssets: (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }): Promise<AxiosResponse<AssetsResponse>> => {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    if (params?.search) searchParams.append('search', params.search || '');
+    return api.get(`/assets?${searchParams.toString()}`);
+  },
+  
+  getAsset: (id: number): Promise<AxiosResponse<ApiResponse<AssetData>>> =>
+    api.get(`/assets/${id}`),
+  
+  createAsset: (data: CreateAssetRequest): Promise<AxiosResponse<ApiResponse<{ id: number }>>> =>
+    api.post('/assets', data),
+  
+  updateAsset: (id: number, data: UpdateAssetRequest): Promise<AxiosResponse<ApiResponse>> =>
+    api.put(`/assets/${id}`, data),
+  
+  deleteAsset: (id: number): Promise<AxiosResponse<ApiResponse>> =>
+    api.delete(`/assets/${id}`),
+  
+  // Subdomain Management
+  getAssetSubdomains: (assetId: number, params?: {
+    page?: number;
+    limit?: number;
+  }): Promise<AxiosResponse<SubdomainsResponse>> => {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    return api.get(`/assets/${assetId}/subdomains?${searchParams.toString()}`);
+  },
+  
+  processSubdomainData: (assetId: number, data: ProcessSubdomainRequest): Promise<AxiosResponse<ProcessSubdomainResponse>> =>
+    api.post(`/assets/${assetId}/subdomains/process`, data),
+  
+  getSubdomainHistory: (assetId: number, subdomainId: number, params?: {
+    page?: number;
+    limit?: number;
+  }): Promise<AxiosResponse<SubdomainsResponse>> => {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    return api.get(`/assets/${assetId}/subdomains/${subdomainId}/history?${searchParams.toString()}`);
+  },
+  
+  getDomainSubdomains: (assetId: number, domain: string, params?: {
+    page?: number;
+    limit?: number;
+  }): Promise<AxiosResponse<SubdomainsResponse>> => {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    return api.get(`/assets/${assetId}/domains/${domain}/subdomains?${searchParams.toString()}`);
+  },
+  
+  getRecentSubdomains: (assetId: number, limit?: number): Promise<AxiosResponse<SubdomainsResponse>> => {
+    const searchParams = new URLSearchParams();
+    if (limit) searchParams.append('limit', limit.toString());
+    return api.get(`/assets/${assetId}/subdomains/recent?${searchParams.toString()}`);
+  },
+  
+  // Report Asset Management
+  getReportAsset: (reportId: number): Promise<AxiosResponse<ReportAssetResponse>> =>
+    api.get(`/reports/${reportId}/asset`),
+  
+  assignAssetToReport: (reportId: number, data: AssignAssetRequest): Promise<AxiosResponse<ApiResponse>> =>
+    api.post(`/reports/${reportId}/asset`, data),
+  
+  removeAssetFromReport: (reportId: number): Promise<AxiosResponse<ApiResponse>> =>
+    api.delete(`/reports/${reportId}/asset`),
+  
+  getAvailableAssetsForReport: (reportId: number): Promise<AxiosResponse<AssetsResponse>> =>
+    api.get(`/reports/${reportId}/assets/available`),
 };

@@ -29,6 +29,7 @@ interface DashboardLayoutProps {
 const pageConfig = {
   dashboard: { title: "Security Dashboard", subtitle: "Monitor security assessments and vulnerabilities" },
   reports: { title: "Security Reports", subtitle: "View and manage all security reports" },
+  assets: { title: "Assets Management", subtitle: "Manage security assets and domains" },
   "expose-finder": { title: "eXpose Finder", subtitle: "Discover potential security exposures" },
   "manage-agent": { title: "Manage Agent", subtitle: "Configure and manage security agents" },
   "past-agent": { title: "Past Agent", subtitle: "View historical agent activities" },
@@ -64,6 +65,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     const path = location.pathname;
     if (path === '/dashboard') return 'dashboard';
     if (path.startsWith('/reports')) return 'reports';
+    if (path.startsWith('/assets')) return 'assets';
     if (path === '/expose-finder') return 'expose-finder';
     if (path === '/manage-agent') return 'manage-agent';
     if (path === '/past-agent') return 'past-agent';
@@ -82,6 +84,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     const routeMap: Record<string, string> = {
       'dashboard': '/dashboard',
       'reports': '/reports',
+      'assets': '/assets',
       'expose-finder': '/expose-finder',
       'manage-agent': '/manage-agent',
       'past-agent': '/past-agent',

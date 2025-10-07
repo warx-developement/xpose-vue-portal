@@ -10,18 +10,24 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCompanyUsers } from '@/hooks/useUsers';
 import { useCreateReport } from '@/hooks/useReports';
+import { useAssets, useAssignAssetToReport } from '@/hooks/useAssets';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export const AddReport: React.FC = () => {
   const navigate = useNavigate();
   const { data: usersData, isLoading: isLoadingUsers } = useCompanyUsers({ page: 1, limit: 100, status: 'all' });
   const users = usersData?.data || [];
   const createReportMutation = useCreateReport();
+  const { data: assetsData, isLoading: isLoadingAssets } = useAssets({ page: 1, limit: 100 });
+  const assets = assetsData?.data || [];
+  const assignAssetMutation = useAssignAssetToReport();
 
   const [formData, setFormData] = useState({
     name: '',
     scope: '',
   });
   const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
+  const [selectedAsset, setSelectedAsset] = useState<string>('none');
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -35,13 +41,32 @@ export const AddReport: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.scope.trim() || selectedUsers.length === 0) return;
+    
     createReportMutation.mutate({
       name: formData.name.trim(),
       scope: formData.scope.trim(),
       userAccess: selectedUsers,
     }, {
-      onSuccess: () => {
-        navigate('/reports');
+      onSuccess: (response) => {
+        const reportId = response.data.id;
+        
+        // If an asset is selected, assign it to the report
+        if (selectedAsset && selectedAsset !== 'none') {
+          assignAssetMutation.mutate({
+            reportId,
+            assetId: parseInt(selectedAsset),
+          }, {
+            onSuccess: () => {
+              navigate('/reports');
+            },
+            onError: () => {
+              // Even if asset assignment fails, navigate to reports
+              navigate('/reports');
+            }
+          });
+        } else {
+          navigate('/reports');
+        }
       }
     });
   };
@@ -105,6 +130,38 @@ export const AddReport: React.FC = () => {
                     className="min-h-[100px]"
                     required
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="asset">Asset (Optional)</Label>
+                  <Select value={selectedAsset} onValueChange={setSelectedAsset}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an asset to associate with this report" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {isLoadingAssets ? (
+                        <SelectItem value="" disabled>
+                          Loading assets...
+                        </SelectItem>
+                      ) : assets.length === 0 ? (
+                        <SelectItem value="" disabled>
+                          No assets available
+                        </SelectItem>
+                      ) : (
+                        <>
+                          <SelectItem value="none">No asset selected</SelectItem>
+                          {assets.map((asset) => (
+                            <SelectItem key={asset.id} value={asset.id.toString()}>
+                              {asset.name} ({asset.domains.join(', ')})
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-sm text-gray-500">
+                    Associate this report with an asset to enable subdomain analysis and reporting.
+                  </p>
                 </div>
 
                 <div className="flex gap-3 pt-4">

@@ -8,7 +8,7 @@ import { StatusChangeModal } from '../components/StatusChangeModal';
 const markdownEditorStyles = `
   .wmde-markdown {
     background-color: white !important;
-    color: #374151 !important;
+    color: black !important;
   }
   .wmde-markdown pre {
     background-color: #f3f4f6 !important;
@@ -63,6 +63,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useBug, useUpdateBug, useBugTypes, useAddBugAttachment, useDeleteBugAttachment } from '@/hooks/useBugs';
+import { useClipboardImageEdit } from '@/hooks/useClipboardImageEdit';
 import { AttachmentUpload } from '@/components/ui/attachment-upload';
 import { AttachmentDisplay, AttachmentGrid } from '@/components/ui/attachment-display';
 import { useQueryClient } from '@tanstack/react-query';
@@ -252,6 +253,16 @@ const EditBug = () => {
   const { data: bug, isLoading } = useBug(parseInt(bugId!));
   const updateBugMutation = useUpdateBug();
   const { data: bugTypes } = useBugTypes();
+
+  // Enable clipboard image paste functionality for bug attachments
+  useClipboardImageEdit({
+    bugId: bugId ? parseInt(bugId) : undefined,
+    enabled: true,
+    onImageUploaded: (imageUrl, attachmentId) => {
+      // Image is automatically added to bug attachments via the API
+      console.log('Image uploaded from clipboard to bug attachments:', imageUrl, attachmentId);
+    }
+  });
   
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
 

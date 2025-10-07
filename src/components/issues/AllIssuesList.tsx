@@ -12,13 +12,13 @@ const BugListItem = ({ bug, isSelected, onClick, onEdit, onStatus, onDelete }: {
   onStatus: () => void;
   onDelete: () => void;
 }) => {
-  const getSeverityColor = (severity: string) => {
+  const getSeverityVariant = (severity: string) => {
     switch (severity.toLowerCase()) {
-      case 'critical': return 'bg-red-500 text-white';
-      case 'high': return 'bg-orange-500 text-white';
-      case 'medium': return 'bg-yellow-500 text-white';
-      case 'low': return 'bg-green-500 text-white';
-      default: return 'bg-blue-500 text-white';
+      case 'critical': return 'critical';
+      case 'high': return 'destructive';
+      case 'medium': return 'warning';
+      case 'low': return 'success';
+      default: return 'info';
     }
   };
 
@@ -41,7 +41,7 @@ const BugListItem = ({ bug, isSelected, onClick, onEdit, onStatus, onDelete }: {
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-sm font-medium text-gray-600">{bug.status.label}</span>
-            <Badge className={`text-xs ${getSeverityColor(bug.severity.label)}`}>
+            <Badge variant={getSeverityVariant(bug.severity.label)} className="text-xs">
               {bug.severity.label}
             </Badge>
           </div>

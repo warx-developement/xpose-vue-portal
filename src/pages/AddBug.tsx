@@ -7,7 +7,7 @@ import MDEditor from '@uiw/react-md-editor';
 const markdownEditorStyles = `
   .wmde-markdown {
     background-color: white !important;
-    color: #374151 !important;
+    color: black !important;
   }
   .wmde-markdown pre {
     background-color: #f3f4f6 !important;
@@ -48,6 +48,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCreateBug, useBugTypes, useAddBugAttachment, useUploadDraftAttachment } from '@/hooks/useBugs';
+import { useClipboardImage } from '@/hooks/useClipboardImage';
 import { DraftAttachment } from '@/lib/api';
 import { AttachmentUpload } from '@/components/ui/attachment-upload';
 import { AttachmentDisplay } from '@/components/ui/attachment-display';
@@ -334,6 +335,24 @@ const AddBug = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
+
+  // Enable clipboard image paste functionality
+  useClipboardImage({
+    reportId: reportId ? parseInt(reportId) : undefined,
+    enabled: true,
+    onImageUploaded: (imageUrl, attachmentId) => {
+      // Add the uploaded attachment to the draft attachments
+      setDraftAttachments(prev => [...prev, {
+        id: attachmentId,
+        image_url: imageUrl,
+        filename: `clipboard-image-${Date.now()}.png`,
+        size: 0,
+        type: 'image',
+        created_at: new Date().toISOString(),
+        is_draft: true
+      }]);
+    }
+  });
 
   const [formData, setFormData] = useState({
     title: '',

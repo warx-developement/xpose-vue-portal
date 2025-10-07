@@ -69,13 +69,13 @@ export const BugsList: React.FC = () => {
   const isIndeterminate = selectedBugs.length > 0 && selectedBugs.length < bugs.length;
 
   // Helper functions
-  const getSeverityColor = (severity: string) => {
+  const getSeverityVariant = (severity: string) => {
     switch (severity.toLowerCase()) {
-      case 'critical': return 'bg-red-100 text-red-800 border-red-200';
-      case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'critical': return 'critical';
+      case 'high': return 'destructive';
+      case 'medium': return 'warning';
+      case 'low': return 'success';
+      default: return 'info';
     }
   };
 
@@ -337,11 +337,12 @@ export const BugsList: React.FC = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge className={`text-xs ${getSeverityColor(bug.severity?.label || 'Medium')}`}>
+                      <Badge variant={getSeverityVariant(bug.severity?.label || 'Medium')} className="text-xs">
                         <div className="flex items-center gap-1">
                           <div className={`w-2 h-2 rounded-full ${
-                            bug.severity?.label?.toLowerCase() === 'high' ? 'bg-red-500' :
-                            bug.severity?.label?.toLowerCase() === 'medium' ? 'bg-orange-500' :
+                            bug.severity?.label?.toLowerCase() === 'critical' ? 'bg-red-500' :
+                            bug.severity?.label?.toLowerCase() === 'high' ? 'bg-orange-500' :
+                            bug.severity?.label?.toLowerCase() === 'medium' ? 'bg-yellow-500' :
                             bug.severity?.label?.toLowerCase() === 'low' ? 'bg-green-500' : 'bg-blue-500'
                           }`} />
                           {bug.severity?.label || 'Medium'}
