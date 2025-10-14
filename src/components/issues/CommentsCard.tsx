@@ -207,7 +207,9 @@ export const CommentsCard = ({ selectedBugId, reportId }: { selectedBugId: numbe
     <Card className="flex flex-col">
       <CardHeader className="flex-shrink-0">
         <CardTitle className="flex items-center gap-2">
-          <MessageSquare className="h-4 w-4 text-green-500" />
+          <div className="inline-flex items-center justify-center w-10 h-10 bg-green-50 rounded-xl">
+            <MessageSquare className="h-5 w-5 text-green-600" />
+          </div>
           Comments
         </CardTitle>
         <p className="text-sm text-gray-500">Post your comments</p>
@@ -231,7 +233,60 @@ export const CommentsCard = ({ selectedBugId, reportId }: { selectedBugId: numbe
                 ) : comments && comments.length > 0 ? (
                   comments.map((comment) => (
                     <div key={comment.id} className="p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
+                      {/* Mobile: Line by line layout */}
+                      <div className="block lg:hidden space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">
+                            {comment.user_name.split(' ').map(n => n[0]).join('')}
+                          </div>
+                          <span className="font-medium text-sm">{comment.user_name}</span>
+                        </div>
+                        <div className="text-xs text-gray-500 ml-8">
+                          {formatDate(comment.created_at)}
+                        </div>
+                        <div className="flex items-center gap-1 ml-8 p-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0"
+                            onClick={() => startEditing(comment.id, comment.comment)}
+                          >
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0"
+                            onClick={() => {
+                              const input = document.createElement('input');
+                              input.type = 'file';
+                              input.accept = '.png,.jpg,.jpeg,.gif,.bmp,.webp,.mp4,.avi,.mov,.wmv,.flv,.webm,.pdf,.txt,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.7z,.tar,.gz';
+                              input.onchange = (e) => {
+                                const file = (e.target as HTMLInputElement).files?.[0];
+                                if (file) {
+                                  handleFileSelect(file, comment.id);
+                                }
+                              };
+                              input.click();
+                            }}
+                            title="Add attachment to this comment"
+                          >
+                            <Paperclip className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                            onClick={() => handleDeleteComment(comment.id)}
+                            disabled={deleteCommentMutation.isPending}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      {/* Desktop: Single line layout */}
+                      <div className="hidden lg:flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">
                             {comment.user_name.split(' ').map(n => n[0]).join('')}

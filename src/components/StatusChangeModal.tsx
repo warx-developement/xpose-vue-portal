@@ -10,7 +10,6 @@ interface StatusChangeModalProps {
   onClose: () => void;
   bugId: number;
   currentStatus?: number;
-  currentSeverity?: number;
 }
 
 const statusOptions = [
@@ -23,39 +22,28 @@ const statusOptions = [
   { value: 6, label: "Won't Fix", color: 'bg-gray-700 text-white' },
 ];
 
-const severityOptions = [
-  { value: 0, label: 'Info', color: 'bg-gray-600 text-white' },
-  { value: 1, label: 'Low', color: 'bg-blue-100 text-blue-800' },
-  { value: 2, label: 'Medium', color: 'bg-orange-100 text-orange-800' },
-  { value: 3, label: 'High', color: 'bg-red-100 text-red-800' },
-  { value: 4, label: 'Critical', color: 'bg-red-600 text-white' },
-];
 
 export const StatusChangeModal: React.FC<StatusChangeModalProps> = ({
   isOpen,
   onClose,
   bugId,
   currentStatus = 0,
-  currentSeverity = 0,
 }) => {
   const [selectedStatus, setSelectedStatus] = useState<number>(currentStatus);
-  const [selectedSeverity, setSelectedSeverity] = useState<number>(currentSeverity);
   const updateBugStatusMutation = useUpdateBugStatus();
 
   // Update state when current values change or modal opens
   useEffect(() => {
     if (isOpen) {
       setSelectedStatus(currentStatus);
-      setSelectedSeverity(currentSeverity);
     }
-  }, [isOpen, currentStatus, currentSeverity]);
+  }, [isOpen, currentStatus]);
 
   const handleSubmit = async () => {
     try {
       await updateBugStatusMutation.mutateAsync({
         bugId,
         status: selectedStatus,
-        severity: selectedSeverity,
       });
       onClose();
     } catch (error) {
@@ -66,34 +54,33 @@ export const StatusChangeModal: React.FC<StatusChangeModalProps> = ({
   const handleClose = () => {
     // Reset to current values when closing without saving
     setSelectedStatus(currentStatus);
-    setSelectedSeverity(currentSeverity);
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-              <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <DialogContent className="w-[90vw] max-w-sm mx-auto p-4">
+        <DialogHeader className="pb-3">
+          <DialogTitle className="flex items-center gap-2 text-base">
+            <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center">
+              <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
               </svg>
             </div>
-            Change Status of Issue
+            Change Status
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-3">
           {/* Status Section */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700">Status</label>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-2 gap-1.5">
               {statusOptions.map((option) => (
                 <button
                   key={option.value}
                   onClick={() => setSelectedStatus(option.value)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-2 py-1.5 rounded text-xs font-medium transition-colors ${
                     selectedStatus === option.value
                       ? option.color
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -105,39 +92,21 @@ export const StatusChangeModal: React.FC<StatusChangeModalProps> = ({
             </div>
           </div>
 
-          {/* Severity Section */}
-          <div className="space-y-3">
-            <label className="text-sm font-medium text-gray-700">Severity</label>
-            <div className="flex flex-wrap gap-2">
-              {severityOptions.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => setSelectedSeverity(option.value)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    selectedSeverity === option.value
-                      ? option.color
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Action Buttons */}
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex flex-col gap-2 pt-3">
             <Button
               variant="outline"
+              size="sm"
               onClick={handleClose}
-              className="bg-red-100 text-red-800 hover:bg-red-200"
+              className="bg-red-100 text-red-800 hover:bg-red-200 w-full text-xs"
             >
               Close
             </Button>
             <Button
+              size="sm"
               onClick={handleSubmit}
               disabled={updateBugStatusMutation.isPending}
-              className="bg-blue-100 text-blue-800 hover:bg-blue-200"
+              className="bg-blue-100 text-blue-800 hover:bg-blue-200 w-full text-xs"
             >
               {updateBugStatusMutation.isPending ? 'Updating...' : 'Submit'}
             </Button>

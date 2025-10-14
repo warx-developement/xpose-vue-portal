@@ -189,7 +189,77 @@ export const AttachmentDisplay: React.FC<AttachmentDisplayProps> = ({
   return (
     <Card className={cn('border border-gray-200 hover:border-gray-300 transition-colors', className)}>
       <CardContent className="p-3">
-        <div className="flex items-center justify-between">
+        {/* Mobile: Stacked layout */}
+        <div className="block sm:hidden space-y-3">
+          {/* File type badge at top */}
+          <div className="flex justify-center">
+            {getFileTypeBadge(normalizedAttachment.filename)}
+          </div>
+          
+          {/* File info */}
+          <div className="flex items-center space-x-3">
+            {getFileIcon(normalizedAttachment.filename)}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">
+                {normalizedAttachment.filename || 'Unknown file'}
+              </p>
+              <div className="text-xs text-gray-500 mt-1">
+                <span>{formatDate(normalizedAttachment.created_at)}</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Action buttons */}
+          {showActions && (
+            <div className="flex items-center justify-center space-x-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleCopyMarkdown}
+                className="h-8 w-8 p-0 text-blue-600 hover:text-blue-800"
+                title="Copy markdown link"
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleDownload}
+                className="h-8 w-8 p-0"
+                title="Download file"
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleView}
+                className="h-8 w-8 p-0"
+                title={isImage ? "View image" : "View file"}
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+              {onDelete && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={onDelete}
+                  className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                  title="Delete attachment"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Desktop: Original horizontal layout */}
+        <div className="hidden sm:flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1 min-w-0">
             {getFileIcon(normalizedAttachment.filename)}
             <div className="flex-1 min-w-0">
@@ -199,9 +269,7 @@ export const AttachmentDisplay: React.FC<AttachmentDisplayProps> = ({
                 </p>
                 {getFileTypeBadge(normalizedAttachment.filename)}
               </div>
-              <div className="flex items-center space-x-2 text-xs text-gray-500">
-                <span>{formatFileSize(normalizedAttachment.size || 0)}</span>
-                <span>•</span>
+              <div className="text-xs text-gray-500">
                 <span>{formatDate(normalizedAttachment.created_at)}</span>
               </div>
             </div>

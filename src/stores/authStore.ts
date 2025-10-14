@@ -6,8 +6,11 @@ export interface User {
   name: string;
   email: string;
   role: string;
-  company_id: number;
-  company_uuid: string;
+  company_id?: number;
+  company_name?: string;
+  is_2fa_enabled?: boolean;
+  is_email_verified?: boolean;
+  permissions?: string[];
 }
 
 interface AuthState {
@@ -39,13 +42,17 @@ export const useAuthStore = create<AuthState>()(
       setAuth: (token: string, user: User) => {
         localStorage.setItem('auth_token', token);
         localStorage.setItem('user_data', JSON.stringify(user));
-        localStorage.setItem('company_uuid', user.company_uuid.toString());
+        
+        // Only set company data for regular users, not superadmin
+        if (user.role !== 'superadmin' && user.company_name) {
+          localStorage.setItem('company_uuid', user.company_name);
+        }
         
         set({
           token,
           user,
-          companyId: user.company_id,
-          companyUuid: user.company_uuid,
+          companyId: user.company_id || null,
+          companyUuid: user.company_name || null,
           isAuthenticated: true,
         });
       },

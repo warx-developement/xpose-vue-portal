@@ -30,6 +30,8 @@ const pageConfig = {
   dashboard: { title: "Security Dashboard", subtitle: "Monitor security assessments and vulnerabilities" },
   reports: { title: "Security Reports", subtitle: "View and manage all security reports" },
   assets: { title: "Assets Management", subtitle: "Manage security assets and domains" },
+  "cve-search": { title: "CVE Search", subtitle: "Search the National Vulnerability Database" },
+  "changelog": { title: "Version History", subtitle: "Track all updates and improvements to WhyXpose" },
   "expose-finder": { title: "eXpose Finder", subtitle: "Discover potential security exposures" },
   "manage-agent": { title: "Manage Agent", subtitle: "Configure and manage security agents" },
   "past-agent": { title: "Past Agent", subtitle: "View historical agent activities" },
@@ -66,6 +68,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     if (path === '/dashboard') return 'dashboard';
     if (path.startsWith('/reports')) return 'reports';
     if (path.startsWith('/assets')) return 'assets';
+    if (path === '/cve-search') return 'cve-search';
     if (path === '/expose-finder') return 'expose-finder';
     if (path === '/manage-agent') return 'manage-agent';
     if (path === '/past-agent') return 'past-agent';
@@ -75,6 +78,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     if (path === '/manual-pentest') return 'manual-pentest';
     if (path === '/my-team') return 'my-team';
     if (path === '/role-management') return 'role-management';
+    // SuperAdmin routes
+    if (path === '/superadmin/dashboard') return 'dashboard';
+    if (path.startsWith('/superadmin/companies')) return 'superadmin-companies';
+    if (path === '/superadmin/analytics') return 'superadmin-analytics';
+    if (path === '/superadmin/settings') return 'superadmin-settings';
     return 'dashboard';
   };
 
@@ -85,6 +93,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       'dashboard': '/dashboard',
       'reports': '/reports',
       'assets': '/assets',
+      'cve-search': '/cve-search',
+      'changelog': '/changelog',
       'expose-finder': '/expose-finder',
       'manage-agent': '/manage-agent',
       'past-agent': '/past-agent',
@@ -93,7 +103,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       'scheduled-scan': '/scheduled-scan',
       'manual-pentest': '/manual-pentest',
       'my-team': '/my-team',
-      'role-management': '/role-management'
+      'role-management': '/role-management',
+      // SuperAdmin routes
+      'superadmin-companies': '/superadmin/companies',
+      'superadmin-analytics': '/superadmin/analytics',
+      'superadmin-settings': '/superadmin/settings'
     };
     
     const route = routeMap[item];
@@ -114,7 +128,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       />
 
       <div className="flex-1 flex flex-col">
-        <Navbar />
+        <Navbar onToggleSidebar={() => setIsCollapsed(!isCollapsed)} />
         <div className="flex-1 px-6 py-4">
           <div className="w-full">
             {children || <Outlet />}

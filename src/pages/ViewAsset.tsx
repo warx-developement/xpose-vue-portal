@@ -32,7 +32,8 @@ import { Label } from '@/components/ui/label';
 import { 
   ArrowLeft, 
   Edit, 
-  Globe, 
+  Globe,
+  Target, 
   Calendar, 
   User, 
   Search,
@@ -196,15 +197,12 @@ const ViewAsset: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
+          <div 
             onClick={() => navigate('/assets')}
-            className="flex items-center gap-2"
+            className="inline-flex items-center justify-center w-10 h-10 bg-purple-50 rounded-xl cursor-pointer hover:bg-purple-100 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Assets
-          </Button>
+            <Target className="h-5 w-5 text-purple-600" />
+          </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{asset.name}</h1>
             <p className="text-gray-600">Asset details and subdomain management</p>

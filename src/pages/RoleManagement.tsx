@@ -42,10 +42,10 @@ export const RoleManagement: React.FC = () => {
 
   return (
     <RoleManagementGuard>
-      <div className="container mx-auto px-4 py-8">
+      <div className="p-6 space-y-6">
         {isTransitioning ? (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="space-y-2">
                 <Skeleton className="h-8 w-48" />
                 <Skeleton className="h-4 w-64" />

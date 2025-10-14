@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useBugs, useDeleteBug, useBug, useBugComments, useBugTimeline, useCreateComment } from '@/hooks/useBugs';
+import { useDebouncedBugs } from '@/hooks/useDebouncedBugs';
 import { StatusChangeModal } from '@/components/StatusChangeModal';
 import { IssueDetails } from '@/components/issues/IssueDetails';
 import { TimelineCard } from '@/components/issues/TimelineCard';
@@ -50,11 +51,13 @@ export const IssuesTable: React.FC = () => {
     );
   }
 
-  const { data, isLoading, error } = useBugs(parseInt(reportId), {
-    search: searchQuery || undefined,
-    status: statusFilter && statusFilter !== 'all' ? statusFilter : undefined,
-    severity: severityFilter && severityFilter !== 'all' ? severityFilter : undefined,
-  });
+  // Use the custom debounced bugs hook
+  const { data, isLoading, error, isDebouncing } = useDebouncedBugs(
+    parseInt(reportId), 
+    searchQuery, 
+    statusFilter, 
+    severityFilter
+  );
 
   const bugs = data?.bugs || [];
 
@@ -172,8 +175,7 @@ export const IssuesTable: React.FC = () => {
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" asChild>
             <Link to={`/reports/${reportId}`}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Report
+              <FileText className="h-5 w-5 mr-2 text-blue-600" />
             </Link>
           </Button>
           <div>
@@ -209,6 +211,11 @@ export const IssuesTable: React.FC = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9"
                 />
+                {isDebouncing && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex gap-2">
@@ -774,7 +781,6 @@ export const IssuesTable: React.FC = () => {
           onClose={() => setStatusModal(null)}
           bugId={statusModal.bugId}
           currentStatus={statusModal.status}
-          currentSeverity={statusModal.severity}
         />
       )}
     </div>

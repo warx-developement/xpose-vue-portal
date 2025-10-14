@@ -15,7 +15,15 @@ export const useLogin = () => {
       setLoading(true);
     },
     onSuccess: (response) => {
-      const { token, user } = response.data;
+      // Check if this is a 2FA response
+      if (response.data && 'requires_2fa' in response.data) {
+        // Don't treat 2FA as success, just return the data
+        setLoading(false);
+        return;
+      }
+      
+      // Normal login success
+      const { token, user } = response.data as any;
       setAuth(token, user);
       
       toast({
@@ -32,9 +40,13 @@ export const useLogin = () => {
         description: message,
         variant: "destructive",
       });
-    },
-    onSettled: () => {
       setLoading(false);
+    },
+    onSettled: (data, error) => {
+      // Only set loading to false if it's not a 2FA response
+      if (!data || !data.data || !('requires_2fa' in data.data)) {
+        setLoading(false);
+      }
     },
   });
 };

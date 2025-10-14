@@ -1,10 +1,12 @@
 import React from 'react';
 import { useDashboard } from '@/hooks/useDashboard';
+import { useAuthStore } from '@/stores/authStore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartConfig } from '@/components/ui/chart';
 import { Area, AreaChart, Bar, BarChart, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { Building2, Users, BarChart3, Settings, Shield } from 'lucide-react';
 
 const StatCard = ({ title, value, icon, change, changeType, iconColor = 'blue' }: {
   title: string;
@@ -135,13 +137,15 @@ const SeverityBadge = ({ severity }: { severity: string }) => {
 };
 
 export default function Dashboard() {
-  const { data: dashboardData, isLoading: dashboardLoading } = useDashboard();
+  const { data: dashboardData, isLoading: dashboardLoading, error: dashboardError } = useDashboard();
+  const { user } = useAuthStore();
+  const isSuperAdmin = user?.role === 'superadmin';
 
   if (dashboardLoading) {
     return (
-      <div>
+      <div className="p-6 space-y-6">
         {/* Stats Grid Skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCardSkeleton />
           <StatCardSkeleton />
           <StatCardSkeleton />
@@ -157,10 +161,178 @@ export default function Dashboard() {
     );
   }
 
+  if (dashboardError) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="text-blue-500 text-6xl mb-4">🏢</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Select a Company</h2>
+          <p className="text-gray-600 mb-4">
+            Please select a company to view the dashboard.
+          </p>
+          <p className="text-sm text-gray-500">
+            This will allow you to access your company's data and reports.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // SuperAdmin Dashboard
+  if (isSuperAdmin) {
+    return (
+      <div className="p-6 space-y-6">
+        {/* SuperAdmin Header */}
+        <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-2xl p-6 border border-red-100">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 bg-red-600 rounded-xl flex items-center justify-center">
+              <Shield className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">SuperAdmin Dashboard</h1>
+              <p className="text-gray-600">System Administration & Company Management</p>
+            </div>
+          </div>
+        </div>
+
+        {/* SuperAdmin Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            title="Total Companies"
+            value="12"
+            icon={<Building2 className="w-5 h-5 text-white" />}
+            change="+2 this month"
+            changeType="positive"
+            iconColor="blue"
+          />
+          <StatCard
+            title="Active Users"
+            value="1,247"
+            icon={<Users className="w-5 h-5 text-white" />}
+            change="+15% from last month"
+            changeType="positive"
+            iconColor="green"
+          />
+          <StatCard
+            title="System Health"
+            value="99.9%"
+            icon={<BarChart3 className="w-5 h-5 text-white" />}
+            change="All systems operational"
+            changeType="positive"
+            iconColor="green"
+          />
+          <StatCard
+            title="Security Alerts"
+            value="3"
+            icon={<Shield className="w-5 h-5 text-white" />}
+            change="2 resolved today"
+            changeType="positive"
+            iconColor="orange"
+          />
+        </div>
+
+        {/* SuperAdmin Quick Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-red-600" />
+                Company Management
+              </CardTitle>
+              <CardDescription>
+                Manage all companies in the system
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-red-50 rounded-lg border border-red-100">
+                  <div className="text-2xl font-bold text-red-600">12</div>
+                  <div className="text-sm text-gray-600">Total Companies</div>
+                </div>
+                <div className="p-4 bg-green-50 rounded-lg border border-green-100">
+                  <div className="text-2xl font-bold text-green-600">10</div>
+                  <div className="text-sm text-gray-600">Active Companies</div>
+                </div>
+              </div>
+              <div className="pt-2">
+                <p className="text-sm text-gray-500">
+                  Manage company accounts, view details, and perform administrative actions.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-blue-600" />
+                System Analytics
+              </CardTitle>
+              <CardDescription>
+                Monitor system performance and usage
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">System Uptime</span>
+                  <span className="text-sm font-medium text-green-600">99.9%</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Active Sessions</span>
+                  <span className="text-sm font-medium text-blue-600">1,247</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Data Storage</span>
+                  <span className="text-sm font-medium text-orange-600">2.4 TB</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Activity for SuperAdmin */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent System Activity</CardTitle>
+            <CardDescription>
+              Latest administrative actions and system events
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Company "TechCorp" activated</p>
+                  <p className="text-xs text-gray-500">2 hours ago</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">New user registered in "StartupXYZ"</p>
+                  <p className="text-xs text-gray-500">4 hours ago</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                <div className="h-2 w-2 bg-orange-500 rounded-full"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">System maintenance completed</p>
+                  <p className="text-xs text-gray-500">6 hours ago</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div className="p-6 space-y-6">
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total Reports"
           value={dashboardData?.reports_count || 0}
@@ -180,13 +352,13 @@ export default function Dashboard() {
             <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>}
-          change={`${dashboardData?.bugs_count || 0} open issues`}
+          change={`${dashboardData?.bugs_by_status?.Open || 0} open issues`}
           changeType="negative"
           iconColor="orange"
         />
         <StatCard
           title="Critical Issues"
-          value={dashboardData?.critical_bugs || 0}
+          value={dashboardData?.bugs_by_severity?.Critical || 0}
           icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
             <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>}
@@ -196,7 +368,7 @@ export default function Dashboard() {
         />
         <StatCard
           title="Resolved Bugs"
-          value={dashboardData?.resolved_bugs || 0}
+          value={dashboardData?.bugs_by_status?.Resolved || 0}
           icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-white">
             <path d="M9 12L11 14L15 10M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>}
@@ -206,7 +378,7 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Bugs by Severity Chart */}
         <div className="group relative bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-red-50/20 via-transparent to-orange-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

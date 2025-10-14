@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/auth/Login";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
+import SuperAdminLogin from "./pages/auth/SuperAdminLogin";
 
 // Dashboard Pages
 import Dashboard from "./pages/Dashboard";
@@ -28,9 +29,16 @@ import AssetsList from "./pages/AssetsList";
 import AddAsset from "./pages/AddAsset";
 import EditAsset from "./pages/EditAsset";
 import ViewAsset from "./pages/ViewAsset";
+import { CVESearch } from "./pages/CVESearch";
+import Changelog from "./pages/Changelog";
+import { CompanyList } from "./pages/companies/CompanyList";
+import { CompanyDetails } from "./pages/companies/CompanyDetails";
 
 // Layout Components
 import { DashboardLayout } from "./components/layout/DashboardLayout";
+
+// Global Error Handler
+import { GlobalCompanyErrorHandler } from "./components/GlobalCompanyErrorHandler";
 
 // Store
 import { useAuthStore } from "./stores/authStore";
@@ -65,6 +73,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <GlobalCompanyErrorHandler />
       <BrowserRouter>
         <Routes>
           {/* Root redirect; send unauth users to login, auth users to dashboard */}
@@ -78,6 +87,9 @@ const App = () => (
           <Route path="/auth/login" element={<Login />} />
           <Route path="/auth/forgot-password" element={<ForgotPassword />} />
           <Route path="/auth/reset-password" element={<ResetPassword />} />
+          
+          {/* SuperAdmin Auth Routes */}
+          <Route path="/superadminlogin" element={<SuperAdminLogin />} />
           
           {/* Protected Dashboard Routes */}
           <Route path="/dashboard" element={
@@ -270,6 +282,50 @@ const App = () => (
             <ProtectedRoute>
               <DashboardLayout>
                 <EditAsset />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
+          
+          {/* CVE Search Route */}
+          <Route path="/cve-search" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <CVESearch />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
+          
+          {/* Changelog Route */}
+          <Route path="/changelog" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Changelog />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
+          
+          {/* SuperAdmin Routes */}
+          <Route path="/superadmin/dashboard" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Dashboard />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
+          
+          {/* SuperAdmin Company Management Routes */}
+          <Route path="/superadmin/companies" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <CompanyList />
+              </DashboardLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/superadmin/companies/:id" element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <CompanyDetails />
               </DashboardLayout>
             </ProtectedRoute>
           } />

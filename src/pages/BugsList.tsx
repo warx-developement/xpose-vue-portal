@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Plus, Search, Bug, Edit, Settings, Eye } from 'lucide-react';
+import { ArrowLeft, Plus, Search, Bug, Edit, Settings, Eye, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -32,9 +32,11 @@ export const BugsList: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <p className="text-red-600 mb-2">Invalid report ID</p>
-          <Button asChild>
-            <Link to="/reports">Back to Reports</Link>
-          </Button>
+          <Link to="/reports">
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-blue-50 rounded-xl">
+              <FileText className="h-5 w-5 text-blue-600" />
+            </div>
+          </Link>
         </div>
       </div>
     );
@@ -103,9 +105,11 @@ export const BugsList: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <p className="text-red-600 mb-2">Error loading bugs: {error.message}</p>
-          <Button asChild>
-            <Link to={`/reports/${reportId}`}>Back to Report</Link>
-          </Button>
+          <Link to={`/reports/${reportId}`}>
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-blue-50 rounded-xl">
+              <FileText className="h-5 w-5 text-blue-600" />
+            </div>
+          </Link>
         </div>
       </div>
     );
@@ -139,12 +143,11 @@ export const BugsList: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link to={`/reports/${reportId}`}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Report
-            </Link>
-          </Button>
+          <Link to={`/reports/${reportId}`}>
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-blue-50 rounded-xl">
+              <FileText className="h-5 w-5 text-blue-600" />
+            </div>
+          </Link>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">All Issues ({bugs.length})</h1>
             <p className="text-muted-foreground">Manage and track all security issues</p>
@@ -421,7 +424,6 @@ export const BugsList: React.FC = () => {
           onClose={() => setStatusModal(null)}
           bugId={statusModal.bugId}
           currentStatus={statusModal.status}
-          currentSeverity={statusModal.severity}
         />
       )}
     </div>

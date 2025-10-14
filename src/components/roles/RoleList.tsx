@@ -122,10 +122,15 @@ export const RoleList: React.FC<RoleListProps> = ({ onCreateRole, onEditRole }) 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Role Management</h1>
-          <p className="text-gray-600 mt-1">Manage user roles and permissions</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-orange-50 rounded-xl">
+            <Shield className="h-6 w-6 text-orange-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Role Management</h1>
+            <p className="text-gray-600 mt-1">Manage user roles and permissions</p>
+          </div>
         </div>
         <Button onClick={onCreateRole} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
@@ -174,7 +179,7 @@ export const RoleList: React.FC<RoleListProps> = ({ onCreateRole, onEditRole }) 
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center gap-6 text-sm text-gray-600">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
                     <Shield className="h-4 w-4" />
                     <span>{role.permission_count || 0} permissions</span>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Save, Settings } from 'lucide-react';
+import { ArrowLeft, Save, Settings, Bug } from 'lucide-react';
 import MDEditor from '@uiw/react-md-editor';
 import { StatusChangeModal } from '../components/StatusChangeModal';
 
@@ -539,7 +539,9 @@ const EditBug = () => {
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Bug Not Found</h1>
           <p className="text-gray-600 mb-4">The bug you're looking for doesn't exist.</p>
           <Link to={`/reports/${reportId}/bugs`}>
-            <Button>Back to Bugs</Button>
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-orange-50 rounded-xl">
+              <Bug className="h-5 w-5 text-orange-600" />
+            </div>
           </Link>
         </div>
       </div>
@@ -550,16 +552,15 @@ const EditBug = () => {
     <div className="min-h-screen bg-gray-50">
       <style dangerouslySetInnerHTML={{ __html: markdownEditorStyles }} />
       
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <Button variant="outline" className="flex items-center gap-2" asChild>
-              <Link to={`/reports/${reportId}/bugs${(searchParams.get('selected') || bugId) ? `?selected=${searchParams.get('selected') || bugId}` : ''}`}>
-                <ArrowLeft className="h-4 w-4" />
-                Back to Bugs
-              </Link>
-            </Button>
+            <Link to={`/reports/${reportId}/bugs${(searchParams.get('selected') || bugId) ? `?selected=${searchParams.get('selected') || bugId}` : ''}`}>
+              <div className="inline-flex items-center justify-center w-10 h-10 bg-orange-50 rounded-xl">
+                <Bug className="h-5 w-5 text-orange-600" />
+              </div>
+            </Link>
             <div>
               <h1 className="text-2xl font-bold tracking-tight">Edit Bug</h1>
               <p className="text-muted-foreground">Update bug information</p>
@@ -631,7 +632,7 @@ const EditBug = () => {
                     className="flex items-center gap-2"
                   >
                     <Settings className="h-4 w-4" />
-                    Change Status & Severity
+                    Change Status 
                   </Button>
                 </div>
               </div>
@@ -792,7 +793,6 @@ const EditBug = () => {
           onClose={() => setIsStatusModalOpen(false)}
           bugId={parseInt(bugId!)}
           currentStatus={bug.status?.value || 0}
-          currentSeverity={bug.severity?.value || 0}
         />
       )}
     </div>

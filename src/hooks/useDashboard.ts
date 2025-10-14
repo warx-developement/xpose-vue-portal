@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { dashboardApi, reportsApi, pdfApi, PDFData } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
+import { createRetryConfig } from '@/lib/company-error-utils';
 
 export const useDashboard = () => {
   return useQuery({
@@ -10,6 +11,7 @@ export const useDashboard = () => {
       return response.data.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
+    ...createRetryConfig(),
   });
 };
 

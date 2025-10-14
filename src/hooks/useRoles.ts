@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { rolesApi, RoleData, PermissionData, PermissionModule, CreateRoleRequest, UpdateRoleRequest, AssignRoleRequest } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
+import { createRetryConfig } from '@/lib/company-error-utils';
 
 // Query Keys
 export const roleKeys = {
@@ -95,6 +96,7 @@ export const useMyPermissions = () => {
       return flatPermissions;
     },
     staleTime: 5 * 60 * 1000,
+    ...createRetryConfig(),
   });
 };
 

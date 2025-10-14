@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -78,11 +79,16 @@ export const MyTeam: React.FC = () => {
   const totalPages = pagination ? pagination.total_pages : 1;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">My Team</h1>
-          <p className="text-muted-foreground">Manage company users, invites and roles</p>
+    <div className="p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-green-50 rounded-xl">
+            <Users className="h-6 w-6 text-green-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">My Team</h1>
+            <p className="text-muted-foreground">Manage company users, invites and roles</p>
+          </div>
         </div>
         <InviteUserModal onInvited={() => { /* list refresh handled by hook invalidation */ }} />
       </div>
@@ -109,7 +115,128 @@ export const MyTeam: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Card>
+      {/* Mobile Card Layout */}
+      <div className="block lg:hidden space-y-4">
+        {isLoading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <div className="flex-1">
+                      <Skeleton className="h-4 w-32 mb-1" />
+                      <Skeleton className="h-3 w-40" />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Skeleton className="h-8 w-20" />
+                    <Skeleton className="h-8 w-16" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : users.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <p className="text-muted-foreground">No users found</p>
+            </CardContent>
+          </Card>
+        ) : (
+          users.map(u => (
+            <Card key={u.id}>
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  {/* User Info */}
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                      <span className="text-green-600 font-medium text-sm">
+                        {u.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium truncate">{u.name}</h3>
+                      <p className="text-sm text-muted-foreground truncate">{u.email}</p>
+                    </div>
+                  </div>
+
+                  {/* Badges */}
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant={u.is_2fa_enabled ? 'default' : 'secondary'} className="text-xs">
+                      {u.is_2fa_enabled ? '2FA On' : '2FA Off'}
+                    </Badge>
+                    <Badge className={`text-xs ${u.is_active ? 'bg-green-500' : 'bg-gray-400'}`}>
+                      {u.is_active ? 'Active' : 'Inactive'}
+                    </Badge>
+                  </div>
+
+                  {/* Role Selector */}
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Role</label>
+                    <RoleSelector userId={u.id} currentRoleName={u.role} />
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="outline" size="sm" disabled={toggleMutation.isPending} className="flex-1">
+                          {u.is_active ? 'Deactivate' : 'Activate'}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>{u.is_active ? 'Deactivate user?' : 'Activate user?'}</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {u.is_active ? 'This will deactivate the user immediately. They will lose access until reactivated.' : 'This will activate the user and restore access.'}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => toggleMutation.mutate({ userId: u.id, active: u.is_active })}>
+                            Confirm
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="sm" disabled={removeMutation.isPending} className="flex-1">
+                          Remove
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Remove user from company?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. The user will be removed from this company and lose related access.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => removeMutation.mutate(u.id)}>
+                            Remove
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Table Layout */}
+      <Card className="hidden lg:block">
         <CardContent className="p-0">
           <Table>
             <TableHeader>
@@ -157,7 +284,16 @@ export const MyTeam: React.FC = () => {
               ) : (
                 users.map(u => (
                   <TableRow key={u.id}>
-                    <TableCell>{u.name}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
+                          <span className="text-green-600 font-medium text-sm">
+                            {u.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                          </span>
+                        </div>
+                        <span className="font-medium">{u.name}</span>
+                      </div>
+                    </TableCell>
                     <TableCell>{u.email}</TableCell>
                     <TableCell className="capitalize">
                       <RoleSelector userId={u.id} currentRoleName={u.role} />
@@ -224,13 +360,13 @@ export const MyTeam: React.FC = () => {
       </Card>
 
       {pagination && pagination.total_pages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <p className="text-sm text-muted-foreground text-center sm:text-left">
             Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, pagination.total)} of {pagination.total} users
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2">
             <Button variant="outline" size="sm" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>Previous</Button>
-            <span className="text-sm">Page {page} of {totalPages}</span>
+            <span className="text-sm px-2">Page {page} of {totalPages}</span>
             <Button variant="outline" size="sm" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>Next</Button>
           </div>
         </div>

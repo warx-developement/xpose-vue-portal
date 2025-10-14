@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import { useAuthStore } from '@/stores/authStore';
+import { isCompanyUuidError } from './company-error-utils';
 
 // API Configuration
 const API_BASE_URL = 'http://demoapi.whyxpose.com/api/v2';
@@ -41,6 +42,15 @@ api.interceptors.response.use(
         window.location.replace('/auth/login');
       }
     }
+    
+    // Handle Invalid company UUID error
+    if (isCompanyUuidError(error)) {
+      // Dispatch a custom event that components can listen to
+      window.dispatchEvent(new CustomEvent('company-uuid-error', { 
+        detail: { error, retryCallback: null } 
+      }));
+    }
+    
     return Promise.reject(error);
   }
 );
@@ -57,10 +67,12 @@ export interface ApiResponse<T = any> {
 export interface LoginRequest {
   email: string;
   password: string;
+  otp?: string;
 }
 
 export interface LoginResponse {
   success: boolean;
+  message?: string;
   token: string;
   user: {
     id: number;
@@ -68,9 +80,19 @@ export interface LoginResponse {
     email: string;
     role: string;
     company_id: number;
-    company_uuid: string;
+    company_name: string;
+    is_2fa_enabled: boolean;
+    is_email_verified: boolean;
+    permissions: string[];
   };
 }
+
+export interface TwoFactorResponse {
+  requires_2fa: boolean;
+  temp_token: string;
+  message: string;
+}
+
 
 export interface ForgotPasswordRequest {
   email: string;
@@ -82,7 +104,7 @@ export interface ResetPasswordRequest {
 }
 
 export const authApi = {
-  login: (data: LoginRequest): Promise<AxiosResponse<LoginResponse>> =>
+  login: (data: LoginRequest): Promise<AxiosResponse<LoginResponse | TwoFactorResponse>> =>
     api.post('/auth/login', data),
   
   logout: (): Promise<AxiosResponse<ApiResponse>> =>
@@ -96,6 +118,28 @@ export const authApi = {
   
   verifyEmail: (token: string): Promise<AxiosResponse<ApiResponse>> =>
     api.post('/auth/verify-email', { token }),
+};
+
+// SuperAdmin API
+export interface SuperAdminLoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface SuperAdminLoginResponse {
+  success: boolean;
+  token: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    role: 'superadmin';
+  };
+}
+
+export const superAdminApi = {
+  login: (data: SuperAdminLoginRequest): Promise<AxiosResponse<SuperAdminLoginResponse>> =>
+    api.post('/superadmin/login', data),
 };
 
 // Dashboard API
@@ -517,8 +561,7 @@ export interface UpdateRoleRequest {
 }
 
 export interface AssignRoleRequest {
-  role_ids: number[];
-  roles?: number[];
+  role_id: number;
 }
 
 export const rolesApi = {
@@ -995,4 +1038,167 @@ export const assetsApi = {
   
   getAvailableAssetsForReport: (reportId: number): Promise<AxiosResponse<AssetsResponse>> =>
     api.get(`/reports/${reportId}/assets/available`),
+};
+
+// SuperAdmin Company Management API Configuration
+const SUPERADMIN_COMPANY_API_BASE_URL = 'http://demoapi.whyxpose.com/api/v2/superadmin';
+
+export const superAdminCompanyApi = axios.create({
+  baseURL: SUPERADMIN_COMPANY_API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// SuperAdmin Company API request interceptor to add auth token
+superAdminCompanyApi.interceptors.request.use((config) => {
+  const token = localStorage.getItem('auth_token');
+  
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  
+  return config;
+});
+
+// SuperAdmin Company API response interceptor to handle common errors
+superAdminCompanyApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Clear auth state and redirect to login once
+      try {
+        const { logout } = useAuthStore.getState();
+        logout();
+      } catch {}
+      if (!window.location.pathname.startsWith('/auth')) {
+        window.location.replace('/auth/superadmin-login');
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
+// SuperAdmin Company Management Types
+export interface Company {
+  id: number;
+  uuid: string;
+  name: string;
+  domain: string;
+  address: string;
+  contact_email: string;
+  contact_phone: string;
+  is_active: number;
+  is_deleted: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CompanyRole {
+  id: number;
+  company_id: number;
+  name: string;
+  description: string;
+  is_system_role: number;
+  is_admin_role: number;
+  is_active: number;
+  created_at: string;
+  updated_at: string | null;
+  permission_count: number;
+}
+
+export interface SuperAdminCompaniesResponse {
+  success: boolean;
+  data: Company[];
+  pagination: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  };
+}
+
+export interface CompanyResponse {
+  success: boolean;
+  data: Company;
+}
+
+export interface CompanyRolesResponse {
+  success: boolean;
+  data: CompanyRole[];
+}
+
+export interface CreateCompanyRequest {
+  name: string;
+  domain: string;
+  address: string;
+  contact_email: string;
+  contact_phone: string;
+}
+
+export interface UpdateCompanyRequest {
+  name?: string;
+  domain?: string;
+  address?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  is_active?: number;
+}
+
+export interface CompanyDeletionError {
+  error: string;
+  remaining_data?: {
+    active_users: number;
+    reports: number;
+    bugs: number;
+    assets: number;
+    comments: number;
+    custom_roles: number;
+  };
+}
+
+// SuperAdmin Company Management API
+export const superAdminApiService = {
+  // Get all companies with pagination and search
+  getCompanies: (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sort_by?: string;
+    sort_order?: 'asc' | 'desc';
+  }): Promise<AxiosResponse<SuperAdminCompaniesResponse>> => {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    if (params?.search) searchParams.append('search', params.search);
+    if (params?.sort_by) searchParams.append('sort_by', params.sort_by);
+    if (params?.sort_order) searchParams.append('sort_order', params.sort_order);
+    
+    return superAdminCompanyApi.get(`/companies?${searchParams.toString()}`);
+  },
+
+  // Get single company by ID
+  getCompany: (id: number): Promise<AxiosResponse<CompanyResponse>> =>
+    superAdminCompanyApi.get(`/companies/${id}`),
+
+  // Create new company
+  createCompany: (data: CreateCompanyRequest): Promise<AxiosResponse<CompanyResponse>> =>
+    superAdminCompanyApi.post('/companies/create', data),
+
+  // Update company
+  updateCompany: (id: number, data: UpdateCompanyRequest): Promise<AxiosResponse<CompanyResponse>> =>
+    superAdminCompanyApi.post(`/companies/${id}/update`, data),
+
+  // Deactivate company (soft delete)
+  deactivateCompany: (id: number): Promise<AxiosResponse<ApiResponse>> =>
+    superAdminCompanyApi.post(`/companies/${id}/deactivate`),
+
+  // Permanently delete company
+  deleteCompany: (id: number): Promise<AxiosResponse<ApiResponse | CompanyDeletionError>> =>
+    superAdminCompanyApi.post(`/companies/${id}/delete`),
+
+  // Get company roles
+  getCompanyRoles: (id: number): Promise<AxiosResponse<CompanyRolesResponse>> =>
+    superAdminCompanyApi.get(`/companies/${id}/roles`),
 };

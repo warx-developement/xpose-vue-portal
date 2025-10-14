@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { X, Plus, ArrowLeft } from 'lucide-react';
+import { X, Plus, ArrowLeft, Target } from 'lucide-react';
 
 const assetSchema = z.object({
   name: z.string().min(1, 'Asset name is required').max(100, 'Asset name must be less than 100 characters'),
@@ -155,15 +155,12 @@ const EditAsset: React.FC = () => {
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="sm"
+        <div 
           onClick={() => navigate('/assets')}
-          className="flex items-center gap-2"
+          className="inline-flex items-center justify-center w-10 h-10 bg-purple-50 rounded-xl cursor-pointer hover:bg-purple-100 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Assets
-        </Button>
+          <Target className="h-5 w-5 text-purple-600" />
+        </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Edit Asset</h1>
           <p className="text-gray-600">Update asset information and domains</p>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Save, Trash2, Users, Plus, X } from 'lucide-react';
+import { ArrowLeft, Save, Trash2, Users, Plus, X, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -223,9 +223,11 @@ export const EditReport: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <p className="text-red-600 mb-2">Error loading report</p>
-          <Button asChild>
-            <Link to="/reports">Back to Reports</Link>
-          </Button>
+          <Link to="/reports">
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-blue-50 rounded-xl">
+              <FileText className="h-5 w-5 text-blue-600" />
+            </div>
+          </Link>
         </div>
       </div>
     );
@@ -236,25 +238,26 @@ export const EditReport: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <p className="text-muted-foreground mb-2">Report not found</p>
-          <Button asChild>
-            <Link to="/reports">Back to Reports</Link>
-          </Button>
+          <Link to="/reports">
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-blue-50 rounded-xl">
+              <FileText className="h-5 w-5 text-blue-600" />
+            </div>
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link to={`/reports/${reportId}`}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Report
-            </Link>
-          </Button>
+          <Link to={`/reports/${reportId}`}>
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-blue-50 rounded-xl">
+              <FileText className="h-5 w-5 text-blue-600" />
+            </div>
+          </Link>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Edit Report</h1>
             <p className="text-muted-foreground">Modify report details and manage access</p>
@@ -313,11 +316,11 @@ export const EditReport: React.FC = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {isLoadingAssets ? (
-                        <SelectItem value="" disabled>
+                        <SelectItem value="loading" disabled>
                           Loading assets...
                         </SelectItem>
                       ) : assets.length === 0 ? (
-                        <SelectItem value="" disabled>
+                        <SelectItem value="no-assets" disabled>
                           No assets available
                         </SelectItem>
                       ) : (

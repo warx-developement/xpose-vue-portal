@@ -9,6 +9,8 @@ export const useBugs = (reportId: number, params?: {
   severity?: string;
   status?: string;
   search?: string;
+}, options?: {
+  enabled?: boolean;
 }) => {
   return useQuery({
     queryKey: ['bugs', reportId, params],
@@ -19,7 +21,7 @@ export const useBugs = (reportId: number, params?: {
         pagination: response.data.pagination,
       };
     },
-    enabled: !!reportId,
+    enabled: !!reportId && (options?.enabled !== false),
     staleTime: 0, // Always consider data stale
     refetchOnWindowFocus: false, // Don't refetch on window focus
   });

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { FileText, Paperclip } from 'lucide-react';
+import { FileText, Paperclip, Code, Wrench, FileImage } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -95,7 +95,9 @@ export const IssueDetails = ({ bugId, onHeightChange }: { bugId: number | null; 
       <>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-blue-500" />
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-blue-50 rounded-xl">
+              <FileText className="h-5 w-5 text-blue-600" />
+            </div>
             Issue Details
           </CardTitle>
         </CardHeader>
@@ -114,7 +116,9 @@ export const IssueDetails = ({ bugId, onHeightChange }: { bugId: number | null; 
       <>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-blue-500" />
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-blue-50 rounded-xl">
+              <FileText className="h-5 w-5 text-blue-600" />
+            </div>
             Issue Details
           </CardTitle>
         </CardHeader>
@@ -136,7 +140,9 @@ export const IssueDetails = ({ bugId, onHeightChange }: { bugId: number | null; 
       <>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-blue-500" />
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-blue-50 rounded-xl">
+              <FileText className="h-5 w-5 text-blue-600" />
+            </div>
             Issue Details
           </CardTitle>
         </CardHeader>
@@ -154,7 +160,9 @@ export const IssueDetails = ({ bugId, onHeightChange }: { bugId: number | null; 
       <>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-blue-500" />
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-blue-50 rounded-xl">
+              <FileText className="h-5 w-5 text-blue-600" />
+            </div>
             Issue Details
           </CardTitle>
         </CardHeader>
@@ -178,85 +186,83 @@ export const IssueDetails = ({ bugId, onHeightChange }: { bugId: number | null; 
   };
 
   return (
-    <>
-      <CardHeader className="flex-shrink-0">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-4 w-4 text-blue-500" />
-              Issue details
-            </CardTitle>
-            <p className="text-sm text-gray-500">Details • Timeline • Attachments</p>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent ref={contentRef} className="space-y-6">
+    <Card className="flex flex-col">
+      <CardContent ref={contentRef} className="space-y-6 mt-5">
         {/* Title and chips */}
-        <div className="flex items-start justify-between gap-6">
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 mb-2">{bug.title}</h3>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-gray-900 mb-2 text-lg sm:text-xl">{bug.title}</h3>
             <div className="flex flex-wrap gap-2">
               <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">{bug.status.label}</Badge>
               <Badge variant={getSeverityVariant(bug.severity.label)} className="px-2">{bug.severity.label}</Badge>
             </div>
           </div>
           {(true) && (
-            <div className="flex items-center gap-3 p-3 rounded-lg border bg-white">
+            <div className="flex items-center gap-3 p-3 rounded-lg border bg-white w-full sm:w-auto justify-center sm:justify-start">
               <div className="text-xs text-gray-500">CVSS</div>
-              <div className="text-2xl font-bold tabular-nums">{bug.cvss?.score ?? '-'}</div>
-              {bug.cvss?.severity && (
-                <Badge variant="outline" className="ml-1">{bug.cvss.severity}</Badge>
-              )}
+              <div className="text-xl sm:text-2xl font-bold tabular-nums">{bug.cvss?.score ?? '-'}</div>
             </div>
           )}
         </div>
 
         {/* Meta grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
-            <div className="text-xs text-gray-500">BUG ID</div>
-            <div className="text-sm font-mono">{bug.bug_id}</div>
+            <div className="text-xs text-gray-500 mb-1">BUG ID</div>
+            <div className="text-sm font-mono break-all">{bug.bug_id}</div>
           </div>
           <div>
-            <div className="text-xs text-gray-500">AFFECTED DOMAIN</div>
-            <div className="text-sm">{bug.domain}</div>
+            <div className="text-xs text-gray-500 mb-1">AFFECTED DOMAIN</div>
+            <div className="text-sm break-all">{bug.domain}</div>
           </div>
           <div>
-            <div className="text-xs text-gray-500">CREATED BY</div>
+            <div className="text-xs text-gray-500 mb-1">CREATED BY</div>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-gray-200 text-gray-700 text-xs flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full bg-gray-200 text-gray-700 text-xs flex items-center justify-center flex-shrink-0">
                 {(bug.created_by || '?').split(' ').map((n: string) => n[0]).join('')}
               </div>
-              <span className="text-sm">{bug.created_by}</span>
+              <span className="text-sm truncate">{bug.created_by}</span>
             </div>
           </div>
           <div>
-            <div className="text-xs text-gray-500">STATUS</div>
+            <div className="text-xs text-gray-500 mb-1">STATUS</div>
             <div className="text-sm">{bug.status.label}</div>
           </div>
           <div>
-            <div className="text-xs text-gray-500">BUG TYPE</div>
+            <div className="text-xs text-gray-500 mb-1">BUG TYPE</div>
             <div className="text-sm">{bug.type?.name}</div>
           </div>
           {(true) && bug.cvss?.vector && (
-            <div className="md:col-span-2">
-              <div className="text-xs text-gray-500">CVSS VECTOR</div>
-              <div className="text-sm break-all">{bug.cvss.vector}</div>
+            <div>
+              <div className="text-xs text-gray-500 mb-1">CVSS VECTOR</div>
+              <div className="text-sm break-all font-mono text-xs bg-gray-50 p-2 rounded">{bug.cvss.vector}</div>
             </div>
           )}
         </div>
 
         {/* Description, POC, Fix, Attachments Tabs */}
         <Tabs defaultValue="description" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="description">Description</TabsTrigger>
-            <TabsTrigger value="poc">POC</TabsTrigger>
-            <TabsTrigger value="fix">Fix</TabsTrigger>
-            <TabsTrigger value="attachments">Attachments</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 h-auto">
+            <TabsTrigger value="description" className="flex flex-col items-center gap-1 p-2 h-auto text-xs">
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">Description</span>
+            </TabsTrigger>
+            <TabsTrigger value="poc" className="flex flex-col items-center gap-1 p-2 h-auto text-xs">
+              <Code className="h-4 w-4" />
+              <span className="hidden sm:inline">POC</span>
+            </TabsTrigger>
+            <TabsTrigger value="fix" className="flex flex-col items-center gap-1 p-2 h-auto text-xs">
+              <Wrench className="h-4 w-4" />
+              <span className="hidden sm:inline">Fix</span>
+            </TabsTrigger>
+            <TabsTrigger value="attachments" className="flex flex-col items-center gap-1 p-2 h-auto text-xs">
+              <FileImage className="h-4 w-4" />
+              <span className="hidden sm:inline">Attachments</span>
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="description" className="mt-4">
-            <div className="text-sm text-gray-700 max-w-none bg-white p-3 rounded border">
+            <div className="text-sm text-gray-700 max-w-none bg-white p-2 sm:p-3 rounded border">
               <div className="[&_.w-md-editor]:bg-white [&_.w-md-editor-text]:bg-white [&_.w-md-editor-text]:text-black [&_.w-md-editor-text]:border-gray-200 [&_.w-md-editor-text]:rounded [&_.w-md-editor-text]:p-2 [&_.w-md-editor-text]:shadow-none [&_pre]:bg-gray-100 [&_pre]:text-gray-800 [&_pre]:border [&_pre]:border-gray-200 [&_pre]:rounded [&_pre]:p-2 [&_code]:bg-gray-100 [&_code]:text-gray-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_blockquote]:bg-gray-50 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:text-gray-700">
                 <MDEditor.Markdown source={bug.description} data-color-mode="light" />
               </div>
@@ -264,7 +270,7 @@ export const IssueDetails = ({ bugId, onHeightChange }: { bugId: number | null; 
           </TabsContent>
           
           <TabsContent value="poc" className="mt-4">
-            <div className="text-sm text-gray-700 max-w-none bg-white p-3 rounded border">
+            <div className="text-sm text-gray-700 max-w-none bg-white p-2 sm:p-3 rounded border">
               <div className="[&_.w-md-editor]:bg-white [&_.w-md-editor-text]:bg-white [&_.w-md-editor-text]:text-black [&_.w-md-editor-text]:border-gray-200 [&_.w-md-editor-text]:rounded [&_.w-md-editor-text]:p-2 [&_.w-md-editor-text]:shadow-none [&_pre]:bg-gray-100 [&_pre]:text-gray-800 [&_pre]:border [&_pre]:border-gray-200 [&_pre]:rounded [&_pre]:p-2 [&_code]:bg-gray-100 [&_code]:text-gray-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_blockquote]:bg-gray-50 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:text-gray-700">
                 <MDEditor.Markdown source={bug.poc} data-color-mode="light" />
               </div>
@@ -272,7 +278,7 @@ export const IssueDetails = ({ bugId, onHeightChange }: { bugId: number | null; 
           </TabsContent>
           
           <TabsContent value="fix" className="mt-4">
-            <div className="text-sm text-gray-700 max-w-none bg-white p-3 rounded border">
+            <div className="text-sm text-gray-700 max-w-none bg-white p-2 sm:p-3 rounded border">
               <div className="[&_.w-md-editor]:bg-white [&_.w-md-editor-text]:bg-white [&_.w-md-editor-text]:text-black [&_.w-md-editor-text]:border-gray-200 [&_.w-md-editor-text]:rounded [&_.w-md-editor-text]:p-2 [&_.w-md-editor-text]:shadow-none [&_pre]:bg-gray-100 [&_pre]:text-gray-800 [&_pre]:border [&_pre]:border-gray-200 [&_pre]:rounded [&_pre]:p-2 [&_code]:bg-gray-100 [&_code]:text-gray-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_blockquote]:bg-gray-50 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-300 [&_blockquote]:pl-4 [&_blockquote]:py-2 [&_blockquote]:text-gray-700">
                 <MDEditor.Markdown source={bug.fix} data-color-mode="light" />
               </div>
@@ -280,7 +286,7 @@ export const IssueDetails = ({ bugId, onHeightChange }: { bugId: number | null; 
           </TabsContent>
           
           <TabsContent value="attachments" className="mt-4">
-            <div className="bg-white p-3 rounded border">
+            <div className="bg-white p-2 sm:p-3 rounded border">
               {bug.attachments && bug.attachments.length > 0 ? (
                 <div className="space-y-2">
                   {bug.attachments.map((attachment) => (
@@ -301,6 +307,6 @@ export const IssueDetails = ({ bugId, onHeightChange }: { bugId: number | null; 
           </TabsContent>
         </Tabs>
       </CardContent>
-    </>
+    </Card>
   );
 };

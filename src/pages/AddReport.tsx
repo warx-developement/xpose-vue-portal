@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check, ChevronDown, Search, Save, X } from 'lucide-react';
+import { ArrowLeft, Check, ChevronDown, Search, Save, X, FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -83,16 +83,15 @@ export const AddReport: React.FC = () => {
   const isFormValid = formData.name.trim() && formData.scope.trim() && selectedUsers.length > 0;
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link to="/reports">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Reports
-            </Link>
-          </Button>
+          <Link to="/reports">
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-blue-50 rounded-xl">
+              <FileText className="h-5 w-5 text-blue-600" />
+            </div>
+          </Link>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Add Report</h1>
             <p className="text-muted-foreground">Create a new report and grant access</p>
@@ -140,11 +139,11 @@ export const AddReport: React.FC = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {isLoadingAssets ? (
-                        <SelectItem value="" disabled>
+                        <SelectItem value="loading" disabled>
                           Loading assets...
                         </SelectItem>
                       ) : assets.length === 0 ? (
-                        <SelectItem value="" disabled>
+                        <SelectItem value="no-assets" disabled>
                           No assets available
                         </SelectItem>
                       ) : (

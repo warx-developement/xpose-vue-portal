@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, LogOut, Settings, User as UserIcon, Building2, Check } from 'lucide-react';
+import { Bell, LogOut, Settings, User as UserIcon, Building2, Check, Building } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications, useMarkAllNotificationsRead, useMarkNotificationRead } from '@/hooks/useDashboard';
 import { useAuthStore } from '@/stores/authStore';
@@ -9,7 +9,11 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useCompanies } from '@/hooks/useProfile';
 
-export const Navbar: React.FC = () => {
+interface NavbarProps {
+  onToggleSidebar?: () => void;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const logoutMutation = useLogout();
@@ -25,7 +29,17 @@ export const Navbar: React.FC = () => {
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4"></div>
+        <div className="flex items-center gap-4">
+          {/* Mobile Hamburger Menu */}
+          <button 
+            onClick={onToggleSidebar}
+            className="lg:hidden p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-gray-500">
+              <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
         
         <div className="flex items-center gap-4">
           {/* Notifications */}
@@ -66,6 +80,32 @@ export const Navbar: React.FC = () => {
               )}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* SuperAdmin Companies Management */}
+          {user?.role === 'superadmin' && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-2 rounded-lg hover:bg-gray-100">
+                  <Building className="h-5 w-5 text-gray-700" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="flex items-center gap-2">
+                  <Building className="h-4 w-4" />
+                  Company Management
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/superadmin/companies')}>
+                  <Building2 className="h-4 w-4 mr-2" />
+                  All Companies
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/superadmin/dashboard')}>
+                  <Settings className="h-4 w-4 mr-2" />
+                  SuperAdmin Dashboard
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
           {/* Profile */}
           <DropdownMenu>

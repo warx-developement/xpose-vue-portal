@@ -33,7 +33,10 @@ export const useInviteCompanyUser = () => {
       queryClient.invalidateQueries({ queryKey: ['company-users'] });
       toast({ title: 'Success', description: 'Invitation sent' });
     },
-    onError: () => toast({ title: 'Error', description: 'Failed to invite user', variant: 'destructive' }),
+    onError: (error: any) => {
+      const message = error.response?.data?.error || error.response?.data?.message || 'Failed to invite user';
+      toast({ title: 'Error', description: message, variant: 'destructive' });
+    },
   });
 };
 
@@ -45,7 +48,14 @@ export const useRemoveCompanyUser = () => {
       queryClient.invalidateQueries({ queryKey: ['company-users'] });
       toast({ title: 'Removed', description: 'User removed from company' });
     },
-    onError: () => toast({ title: 'Error', description: 'Failed to remove user', variant: 'destructive' }),
+    onError: (error: any) => {
+      const message = error.response?.data?.error || error.response?.data?.message || 'Failed to remove user';
+      toast({ 
+        title: 'Error', 
+        description: message, 
+        variant: 'destructive' 
+      });
+    },
   });
 };
 
@@ -57,7 +67,10 @@ export const useToggleCompanyUserActive = () => {
       queryClient.invalidateQueries({ queryKey: ['company-users'] });
       toast({ title: 'Success', description: 'User status updated' });
     },
-    onError: () => toast({ title: 'Error', description: 'Failed to update status', variant: 'destructive' }),
+    onError: (error: any) => {
+      const message = error.response?.data?.error || error.response?.data?.message || 'Failed to update status';
+      toast({ title: 'Error', description: message, variant: 'destructive' });
+    },
   });
 };
 
@@ -77,7 +90,7 @@ export const useAssignUserRole = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ userId, roleId }: { userId: number; roleId: number }) =>
-      rolesApi.assignUserRoles(userId, { role_ids: [roleId], roles: [roleId] }),
+      rolesApi.assignUserRoles(userId, { role_id: roleId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['company-users'] });
       toast({ title: 'Role assigned', description: 'User role updated' });

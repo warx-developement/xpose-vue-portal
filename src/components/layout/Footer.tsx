@@ -1,6 +1,8 @@
 import React from 'react';
 
 export const Footer: React.FC = () => {
+  const currentYear = new Date().getFullYear();
+  
   return (
     <footer className="mt-8 py-4 border-t border-gray-200 bg-white">
       <div className="w-full px-6">
@@ -13,10 +15,10 @@ export const Footer: React.FC = () => {
                 <path d="M3 12L12 17L21 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <span className="text-sm text-gray-600">© 2024 whyXpse. All rights reserved.</span>
+            <span className="text-sm text-gray-600">© {currentYear} WhyXpose. All rights reserved.</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">V1.2</span>
+            <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">V1.3</span>
             <span className="text-sm text-gray-500">Powered by Security Solutions</span>
           </div>
         </div>

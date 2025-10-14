@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Eye, Edit, Trash2, FileText, Users, Calendar, Filter } from 'lucide-react';
+import { Plus, Search, Eye, Edit, Trash2, FileText, Users, Calendar, Filter, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -77,6 +77,256 @@ const UserAvatars = ({ users, maxShow = 3 }: { users: any[]; maxShow?: number })
   );
 };
 
+const SeverityIndicator = ({ bugs_count }: { bugs_count: any }) => {
+  const total = bugs_count?.total || 0;
+
+  const severities = [
+    { key: 'Critical', color: 'bg-red-500', count: bugs_count?.Critical || 0 },
+    { key: 'High', color: 'bg-orange-500', count: bugs_count?.High || 0 },
+    { key: 'Medium', color: 'bg-yellow-500', count: bugs_count?.Medium || 0 },
+    { key: 'Low', color: 'bg-blue-500', count: bugs_count?.Low || 0 },
+    { key: 'Info', color: 'bg-gray-400', count: bugs_count?.Info || 0 },
+  ];
+
+  // Calculate grade based on severity distribution
+  const criticalCount = bugs_count?.Critical || 0;
+  const highCount = bugs_count?.High || 0;
+  const mediumCount = bugs_count?.Medium || 0;
+  const lowCount = bugs_count?.Low || 0;
+  
+  // Grade calculation: A (best) to F (worst)
+  let grade = 'A';
+  let gradeColor = 'text-green-600';
+  let numberColor = 'text-green-600';
+  
+  if (total === 0) {
+    grade = 'A';
+    gradeColor = 'text-green-600';
+    numberColor = 'text-green-600';
+  } else if (criticalCount > 0) {
+    grade = 'F';
+    gradeColor = 'text-red-600';
+    numberColor = 'text-red-600';
+  } else if (highCount >= 3) {
+    grade = 'D';
+    gradeColor = 'text-orange-600';
+    numberColor = 'text-orange-600';
+  } else if (highCount >= 1 || mediumCount >= 5) {
+    grade = 'C';
+    gradeColor = 'text-yellow-600';
+    numberColor = 'text-yellow-600';
+  } else if (mediumCount >= 1 || lowCount >= 3) {
+    grade = 'B';
+    gradeColor = 'text-blue-600';
+    numberColor = 'text-blue-600';
+  }
+
+  return (
+    <div className="flex flex-col items-center space-y-2">
+      <div className={`text-4xl font-bold ${numberColor}`}>{total}</div>
+      <div className="text-sm font-medium text-gray-600 hidden lg:block">Total</div>
+      <div className={`text-sm font-semibold ${gradeColor}`}>{grade} Grade</div>
+    </div>
+  );
+};
+
+const ReportCard = ({ report, onDelete, onGenerate }: { 
+  report: any; 
+  onDelete: (id: number, name: string) => void; 
+  onGenerate: (id: number) => void;
+}) => {
+
+  return (
+    <Card className="border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group" onClick={() => window.location.href = `/reports/${report.id}`}>
+      <CardContent className="p-4">
+        {/* Mobile Layout - Stacked */}
+        <div className="block lg:hidden space-y-4">
+          {/* Top Row - Grade and Name */}
+          <div className="flex items-start justify-between">
+            <div className="flex-shrink-0 w-16">
+              <SeverityIndicator bugs_count={report.bugs_count} />
+            </div>
+            <div className="flex-1 min-w-0 ml-4">
+              <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                {report.name}
+              </h3>
+              <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                {report.scope}
+              </p>
+            </div>
+          </div>
+
+          {/* Middle Row - Severity Breakdown */}
+          <div className="flex gap-1.5 justify-center">
+            <div className="bg-red-50 border border-red-200 rounded-md p-1.5 text-center min-w-[45px] flex-shrink-0">
+              <div className="text-xs font-bold text-red-600">{report.bugs_count?.Critical || 0}</div>
+              <div className="text-[10px] font-medium text-red-600">Critical</div>
+            </div>
+            <div className="bg-orange-50 border border-orange-200 rounded-md p-1.5 text-center min-w-[45px] flex-shrink-0">
+              <div className="text-xs font-bold text-orange-600">{report.bugs_count?.High || 0}</div>
+              <div className="text-[10px] font-medium text-orange-600">High</div>
+            </div>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-1.5 text-center min-w-[45px] flex-shrink-0">
+              <div className="text-xs font-bold text-yellow-600">{report.bugs_count?.Medium || 0}</div>
+              <div className="text-[10px] font-medium text-yellow-600">Medium</div>
+            </div>
+            <div className="bg-green-50 border border-green-200 rounded-md p-1.5 text-center min-w-[45px] flex-shrink-0">
+              <div className="text-xs font-bold text-green-600">{report.bugs_count?.Low || 0}</div>
+              <div className="text-[10px] font-medium text-green-600">Low</div>
+            </div>
+          </div>
+
+          {/* Bottom Row - Team Access, Actions, and Date */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="flex -space-x-1">
+                {report.access?.length > 0 ? (
+                  <UserAvatars users={report.access} />
+                ) : (
+                  <div className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-600 text-xs font-medium border-2 border-background">
+                    <Users className="h-3 w-3" />
+                  </div>
+                )}
+              </div>
+              <span className="text-xs text-gray-500">Team Access</span>
+            </div>
+            
+            <div className="flex items-center space-x-1" onClick={(e) => e.stopPropagation()}>
+              <Button variant="ghost" size="sm" asChild className="h-8 w-8 p-0 hover:bg-gray-100">
+                <Link to={`/reports/${report.id}`}>
+                  <Eye className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button variant="ghost" size="sm" asChild className="h-8 w-8 p-0 hover:bg-gray-100">
+                <Link to={`/reports/${report.id}/edit`}>
+                  <Edit className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onGenerate(report.id)}
+                className="h-8 w-8 p-0 hover:bg-gray-100"
+                title="Generate PDF"
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onDelete(report.id, report.name)}
+                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                title="Delete"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Date Row */}
+          <div className="text-xs text-gray-400 text-center">
+            Created: {new Date(report.created_at).toLocaleDateString()}
+          </div>
+        </div>
+
+        {/* Desktop Layout - Original */}
+        <div className="hidden lg:flex items-center justify-between">
+          {/* Section 1 - Grade */}
+          <div className="flex-shrink-0 w-20">
+            <SeverityIndicator bugs_count={report.bugs_count} />
+          </div>
+
+          {/* Section 2 - Name and Description */}
+          <div className="flex-1 min-w-0 mx-4">
+            <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-1 group-hover:text-blue-600 transition-colors">
+              {report.name}
+            </h3>
+            <p className="text-sm text-gray-600 mb-2 line-clamp-1">
+              {report.scope}
+            </p>
+            
+            {/* Team Access */}
+            <div className="flex items-center space-x-2">
+              <div className="flex -space-x-1">
+                {report.access?.length > 0 ? (
+                  <UserAvatars users={report.access} />
+                ) : (
+                  <div className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-600 text-xs font-medium border-2 border-background">
+                    <Users className="h-3 w-3" />
+                  </div>
+                )}
+              </div>
+              <span className="text-xs text-gray-500">Team Access</span>
+            </div>
+          </div>
+
+          {/* Section 3 - Severity Breakdown Grid (One Line) */}
+          <div className="flex-shrink-0 mx-4">
+            <div className="flex gap-1">
+              <div className="bg-red-50 border border-red-200 rounded-md p-2 text-center min-w-[50px]">
+                <div className="text-sm font-bold text-red-600">{report.bugs_count?.Critical || 0}</div>
+                <div className="text-xs font-medium text-red-600">Critical</div>
+              </div>
+              <div className="bg-orange-50 border border-orange-200 rounded-md p-2 text-center min-w-[50px]">
+                <div className="text-sm font-bold text-orange-600">{report.bugs_count?.High || 0}</div>
+                <div className="text-xs font-medium text-orange-600">High</div>
+              </div>
+              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-2 text-center min-w-[50px]">
+                <div className="text-sm font-bold text-yellow-600">{report.bugs_count?.Medium || 0}</div>
+                <div className="text-xs font-medium text-yellow-600">Medium</div>
+              </div>
+              <div className="bg-green-50 border border-green-200 rounded-md p-2 text-center min-w-[50px]">
+                <div className="text-sm font-bold text-green-600">{report.bugs_count?.Low || 0}</div>
+                <div className="text-xs font-medium text-green-600">Low</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 4 - Actions */}
+          <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+            <div className="flex flex-col items-center space-y-1">
+              <div className="flex items-center space-x-1">
+                <Button variant="ghost" size="sm" asChild className="h-8 w-8 p-0 hover:bg-gray-100">
+                  <Link to={`/reports/${report.id}`}>
+                    <Eye className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="sm" asChild className="h-8 w-8 p-0 hover:bg-gray-100">
+                  <Link to={`/reports/${report.id}/edit`}>
+                    <Edit className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onGenerate(report.id)}
+                  className="h-8 w-8 p-0 hover:bg-gray-100"
+                  title="Generate PDF"
+                >
+                  <Download className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onDelete(report.id, report.name)}
+                  className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  title="Delete"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+              {/* Created date below actions */}
+              <div className="text-xs text-gray-400">
+                Created: {new Date(report.created_at).toLocaleDateString()}
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 export const ListReports: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -136,14 +386,19 @@ export const ListReports: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Security Reports</h1>
-          <p className="text-muted-foreground">
-            Manage and monitor your security assessment reports
-          </p>
+        <div className="flex items-center gap-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-50 rounded-xl">
+            <FileText className="h-6 w-6 text-blue-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Security Reports</h1>
+            <p className="text-muted-foreground">
+              Manage and monitor your security assessment reports
+            </p>
+          </div>
         </div>
         <Button asChild className="flex items-center gap-2">
           <Link to="/reports/add">
@@ -186,134 +441,90 @@ export const ListReports: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Reports Table */}
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Report</TableHead>
-                <TableHead>Team Access</TableHead>
-                <TableHead>Vulnerabilities</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead className="w-[100px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                Array.from({ length: pageSize }).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell>
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-48" />
-                        <Skeleton className="h-3 w-32" />
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex -space-x-2">
+      {/* Reports Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {isLoading ? (
+          Array.from({ length: pageSize }).map((_, i) => (
+            <Card key={i} className="border border-gray-200">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex-shrink-0 w-20">
+                    <div className="flex flex-col items-center space-y-2">
+                      <Skeleton className="h-10 w-10 rounded" />
+                      <Skeleton className="h-4 w-16" />
+                      <Skeleton className="h-4 w-12" />
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0 mx-4">
+                    <Skeleton className="h-6 w-64 mb-2" />
+                    <Skeleton className="h-4 w-48 mb-2" />
+                    <div className="flex items-center space-x-2">
+                      <div className="flex -space-x-1">
                         {Array.from({ length: 3 }).map((_, j) => (
-                          <Skeleton key={j} className="h-8 w-8 rounded-full" />
+                          <Skeleton key={j} className="h-6 w-6 rounded-full" />
                         ))}
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-2">
-                        <Skeleton className="h-2 w-full" />
-                        <Skeleton className="h-3 w-24" />
-                      </div>
-                    </TableCell>
-                    <TableCell>
                       <Skeleton className="h-4 w-20" />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Skeleton className="h-8 w-8" />
-                        <Skeleton className="h-8 w-8" />
-                        <Skeleton className="h-8 w-8" />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : data?.reports?.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-32 text-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <FileText className="h-8 w-8 text-muted-foreground" />
-                      <p className="text-muted-foreground">
-                        {searchQuery ? 'No reports found matching your search.' : 'No reports yet.'}
-                      </p>
-                      {!searchQuery && (
-                        <Button variant="outline" asChild className="mt-2">
-                          <Link to="/reports/add">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Your First Report
-                          </Link>
-                        </Button>
-                      )}
                     </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                data.reports.map((report) => (
-                  <TableRow key={report.id} className="group">
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="font-medium">{report.name}</div>
-                        <div className="text-sm text-muted-foreground line-clamp-1">
-                          {report.scope}
-                        </div>
+                  </div>
+                  <div className="flex-shrink-0 mx-4">
+                    <div className="flex gap-1">
+                      {Array.from({ length: 4 }).map((_, j) => (
+                        <Skeleton key={j} className="h-12 w-12 rounded-md" />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <div className="flex flex-col items-center space-y-1">
+                      <div className="flex items-center space-x-1">
+                        {Array.from({ length: 4 }).map((_, j) => (
+                          <Skeleton key={j} className="h-8 w-8" />
+                        ))}
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      {report.access?.length > 0 ? (
-                        <UserAvatars users={report.access} />
-                      ) : (
-                        <span className="text-sm text-muted-foreground">No access</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <VulnerabilityProgressBar bugs_count={report.bugs_count} />
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm text-muted-foreground">
-                        {new Date(report.created_at).toLocaleDateString()}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link to={`/reports/${report.id}`}>
-                            <Eye className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link to={`/reports/${report.id}/edit`}>
-                            <Edit className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleGenerateReport(report.id)}
-                        >
-                          <FileText className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteReport(report.id, report.name)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : data?.reports?.length === 0 ? (
+          <div className="col-span-full">
+            <Card>
+              <CardContent className="p-12 text-center">
+                <div className="flex flex-col items-center gap-4">
+                  <FileText className="h-12 w-12 text-muted-foreground" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      {searchQuery ? 'No reports found' : 'No reports yet'}
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      {searchQuery ? 'No reports found matching your search.' : 'Get started by creating your first security report.'}
+                    </p>
+                    {!searchQuery && (
+                      <Button asChild>
+                        <Link to="/reports/add">
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Your First Report
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          data.reports.map((report) => (
+            <ReportCard
+              key={report.id}
+              report={report}
+              onDelete={handleDeleteReport}
+              onGenerate={handleGenerateReport}
+            />
+          ))
+        )}
+      </div>
 
       {/* Pagination */}
       {data?.pagination && data.pagination.total_pages > 1 && (

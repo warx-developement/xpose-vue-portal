@@ -127,9 +127,11 @@ export const GenerateReport: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <p className="text-red-600 mb-2">Error loading report</p>
-          <Button asChild>
-            <Link to="/reports">Back to Reports</Link>
-          </Button>
+          <Link to="/reports">
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-blue-50 rounded-xl">
+              <FileText className="h-5 w-5 text-blue-600" />
+            </div>
+          </Link>
         </div>
       </div>
     );
@@ -140,25 +142,26 @@ export const GenerateReport: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <p className="text-muted-foreground mb-2">Report not found</p>
-          <Button asChild>
-            <Link to="/reports">Back to Reports</Link>
-          </Button>
+          <Link to="/reports">
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-blue-50 rounded-xl">
+              <FileText className="h-5 w-5 text-blue-600" />
+            </div>
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link to={`/reports/${report.id}`}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Report
-            </Link>
-          </Button>
+          <Link to={`/reports/${report.id}`}>
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-blue-50 rounded-xl">
+              <FileText className="h-5 w-5 text-blue-600" />
+            </div>
+          </Link>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Generate Report</h1>
             <p className="text-muted-foreground">Generate a PDF report for {report.name}</p>

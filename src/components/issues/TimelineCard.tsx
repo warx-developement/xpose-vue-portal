@@ -23,7 +23,9 @@ export const TimelineCard = ({ selectedBugId, height }: { selectedBugId: number 
     <Card className="flex flex-col" style={{ height: selectedBugId ? (height ? `${height + 100}px` : 'auto') : '750px' }}>
       <CardHeader className="flex-shrink-0">
         <CardTitle className="flex items-center gap-2">
-          <BarChart3 className="h-4 w-4 text-red-500" />
+          <div className="inline-flex items-center justify-center w-10 h-10 bg-red-50 rounded-xl">
+            <BarChart3 className="h-5 w-5 text-red-600" />
+          </div>
           Timeline
         </CardTitle>
         <p className="text-sm text-gray-500">Issue timeline</p>

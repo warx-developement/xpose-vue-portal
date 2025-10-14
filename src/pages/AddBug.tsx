@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Save, X } from 'lucide-react';
+import { ArrowLeft, Save, X, Bug } from 'lucide-react';
 import MDEditor from '@uiw/react-md-editor';
 
 // Override markdown editor dark theme
@@ -545,16 +545,15 @@ const AddBug = () => {
     <div className="min-h-screen bg-gray-50">
       <style dangerouslySetInnerHTML={{ __html: markdownEditorStyles }} />
       
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <Button variant="outline" className="flex items-center gap-2" asChild>
-              <Link to={`/reports/${reportId}/bugs${searchParams.get('selected') ? `?selected=${searchParams.get('selected')}` : ''}`}>
-                <ArrowLeft className="h-4 w-4" />
-                Back to Bugs
-              </Link>
-            </Button>
+            <Link to={`/reports/${reportId}/bugs${searchParams.get('selected') ? `?selected=${searchParams.get('selected')}` : ''}`}>
+              <div className="inline-flex items-center justify-center w-10 h-10 bg-orange-50 rounded-xl">
+                <Bug className="h-5 w-5 text-orange-600" />
+              </div>
+            </Link>
             <div>
               <h1 className="text-2xl font-bold tracking-tight">Add New Bug</h1>
               <p className="text-muted-foreground">Create a new bug report</p>

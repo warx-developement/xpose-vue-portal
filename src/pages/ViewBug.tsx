@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Search, Bug } from 'lucide-react';
+import { ArrowLeft, Plus, Search, Bug, Settings } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,15 +31,15 @@ export const ViewBug: React.FC = () => {
   const { data, isLoading, error } = useBugs(parseInt(reportId || '0'), {});
   const bugs = data?.bugs || [];
   const deleteBugMutation = useDeleteBug();
-  const [statusModal, setStatusModal] = useState<{ bugId: number; status: number; severity: number } | null>(null);
+  const [statusModal, setStatusModal] = useState<{ bugId: number; status: number } | null>(null);
 
   const handleEdit = (bugId: number) => {
     const qs = searchParams.get('selected') ? `?selected=${searchParams.get('selected')}` : '';
     navigate(`/reports/${reportId}/bugs/${bugId}/edit${qs}`);
   };
 
-  const handleStatus = (bugId: number, status: number, severity: number) => {
-    setStatusModal({ bugId, status, severity });
+  const handleStatus = (bugId: number, status: number) => {
+    setStatusModal({ bugId, status });
   };
 
   const handleDelete = async (bugId: number) => {
@@ -99,14 +99,13 @@ export const ViewBug: React.FC = () => {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" asChild>
-            <Link to={`/reports/${reportId}/bugs`}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Issues
-            </Link>
-          </Button>
+          <Link to={`/reports/${reportId}/bugs`}>
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-orange-50 rounded-xl">
+              <Bug className="h-5 w-5 text-orange-600" />
+            </div>
+          </Link>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Issue Details</h1>
             <p className="text-muted-foreground">View and manage issue details</p>
@@ -120,6 +119,17 @@ export const ViewBug: React.FC = () => {
           >
             <Plus className="h-4 w-4 mr-2" />
             Edit Issue
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const currentBug = bugs.find(bug => bug.id === selectedBugId);
+              setStatusModal({ bugId: selectedBugId!, status: currentBug?.status?.value || 0 });
+            }}
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Change Status
           </Button>
         </div>
       </div>
@@ -151,7 +161,6 @@ export const ViewBug: React.FC = () => {
           onClose={() => setStatusModal(null)}
           bugId={statusModal.bugId}
           currentStatus={statusModal.status}
-          currentSeverity={statusModal.severity}
         />
       )}
     </div>
